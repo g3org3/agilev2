@@ -1,5 +1,5 @@
 import { pb } from '@/services/pb'
-import { Collections, LatestSprintPointsViewResponse, SprintDatesViewResponse, SprintDevsViewResponse, TicketsResponse } from '@/services/pocketbase-types'
+import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 import { Avatar, Button, Flex, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -27,9 +27,11 @@ function Daily() {
   })
 
   const previous_day = useMemo(() => {
+    // TODO: change utc_date to date
     const index = dates.map(date => date.utc_date.split(' ')[0])
       .findIndex((date) => date === selectedDate)
 
+    // TODO: change utc_date to date
     return index === 0 || index === -1 ? null : dates[index - 1].utc_date.split(' ')[0]
   }, [dates, selectedDate])
 
@@ -55,7 +57,7 @@ function Daily() {
   })
 
   return (
-    <Flex flexDir="column" padding="5" h="100vdh" overflow="auto" gap="2">
+    <Flex flexDir="column" padding="5" h="100vdh" overflow="auto" gap="5">
       <Flex gap="2">
         <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
           <Button size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
@@ -68,7 +70,7 @@ function Daily() {
       <Flex gap="2">
         <DevsBtns />
       </Flex>
-      <DaySummary />
+      <DaySummary tickets={tickets} />
       {view === 'table' ? <TableTickets tickets={tickets} old_tickets={old_tickets} /> : null}
       {view === 'trello' ? <TrelloTickets tickets={tickets} old_tickets={old_tickets} /> : null}
     </Flex>
@@ -181,29 +183,68 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], ol
   )
 }
 
-function DaySummary() {
+function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
   const { sprintId } = Route.useParams()
-  const { selectedDate } = Route.useSearch()
+  const { selectedDate, selectedDev } = Route.useSearch()
 
-  const { data: summary } = useQuery({
-    queryKey: [''],
-    queryFn: () => pb.collection(Collections.LatestSprintPointsView).getOne<LatestSprintPointsViewResponse>(
-      `${sprintId}-${selectedDate}`
-    ),
+  const { data: devs = [] } = useQuery({
+    queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
+    queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
+      filter: `sprint = '${sprintId}'`,
+      sort: 'dev'
+    }),
+  })
+
+  const { data: staffing = [] } = useQuery({
+    queryKey: [Collections.Staffing, sprintId, selectedDate],
+    queryFn: () => pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
+      filter: `sprint = '${sprintId}' && utc_date < '${selectedDate} 00:00:00.000Z'`,
+    }),
     enabled: !!selectedDate,
   })
 
+  const byDev = useMemo(() => {
+    const byId: Record<string, number> = {}
+
+    for (const day of staffing) {
+      byId[day.dev] = byId[day.dev] || 0
+      byId[day.dev] += day.points
+    }
+
+    return byId
+  }, [sprintId, selectedDate, staffing])
+
   return (
-    <Table>
+    <Table size="sm" boxShadow="md" width="600px">
       <Thead>
         <Tr>
+          <Th>Soft</Th>
+          <Th>Dev</Th>
+          <Th>To Val</Th>
           <Th>Done</Th>
+          <Th>TBD</Th>
+          <Th>Late</Th>
         </Tr>
       </Thead>
       <Tbody>
-        <Tr>
-          <Td>{summary?.tbd_points}</Td>
-        </Tr>
+        {devs.filter(dev => dev.dev === selectedDev || !selectedDev).map(dev => {
+          const done = tickets.filter(ticket => ticket.status === 'Done' && ticket.owner === dev.dev)
+            .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
+          const to_val = tickets.filter(ticket => ticket.status === 'In Test' && ticket.owner === dev.dev)
+            .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
+          const tbd = byDev[dev.dev] || 0
+
+          return (
+            <Tr background={selectedDev === dev.dev ? 'blue.100' : undefined}>
+              <Td>{(done + to_val) - tbd}</Td>
+              <Td>{dev.dev}</Td>
+              <Td>{to_val}</Td>
+              <Td>{done}</Td>
+              <Td>{tbd}</Td>
+              <Td>{done - tbd}</Td>
+            </Tr>
+          )
+        })}
       </Tbody>
     </Table>
   )
@@ -237,6 +278,7 @@ function DateBtns() {
   })
 
   return dates.map(date => {
+    // TODO: change utc_date to date
     const _selectedDate = date.utc_date.split(' ')[0]
     return (
       <Link
@@ -258,7 +300,8 @@ function DevsBtns() {
   const { data: devs = [] } = useQuery({
     queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
     queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
-      filter: `sprint = '${sprintId}'`
+      filter: `sprint = '${sprintId}'`,
+      sort: 'name',
     }),
   })
 
