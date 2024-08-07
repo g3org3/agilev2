@@ -29,7 +29,7 @@ function Daily() {
     const index = dates.map(date => date.utc_date.split(' ')[0])
       .findIndex((date) => date === selectedDate)
 
-    return index === 0 ? null : dates[index - 1]
+    return index === 0 || index === -1 ? null : dates[index - 1].utc_date.split(' ')[0]
   }, [dates, selectedDate])
 
   const filter = `sprint = '${sprintId}' && date = '${selectedDate}' && status != 'To Do'`
@@ -43,7 +43,7 @@ function Daily() {
     enabled: !!selectedDate,
   })
 
-  const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'Done' && status != 'In Test'`
+  const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [] } = useQuery({
     queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse>({
@@ -64,7 +64,6 @@ function Daily() {
       <Flex gap="2">
         <DevsBtns />
       </Flex>
-
       <Table size="sm">
         <Thead>
           <Tr>
@@ -77,16 +76,33 @@ function Daily() {
           </Tr>
         </Thead>
         <Tbody>
-          {tickets.sort(SortFn).map(ticket => (
-            <Tr key={ticket.key}>
-              <Td>{ticket.key}</Td>
-              <Td>{ticket.owner}</Td>
-              <Td>{ticket.summary}</Td>
-              <Td>{ticket.status}</Td>
-              <Td>{ticket.points}</Td>
-              <Td>{old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status}</Td>
-            </Tr>
-          ))}
+          {tickets.sort(SortFn).map(ticket => {
+            const warning = ['Done'].includes(ticket.status)
+              ? null
+              : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
+
+            let color = !warning ? undefined : 'red.100'
+            if (warning != 'In Test' && ticket.status === 'In Test') {
+              color = 'yellow.100'
+            }
+            if (warning == 'In Test' && ticket.status === 'In Test') {
+              color = 'orange.100'
+            }
+            if (ticket.status === 'Done') {
+              color = 'green.100'
+            }
+
+            return (
+              <Tr background={color} key={ticket.key}>
+                <Td>{ticket.key}</Td>
+                <Td>{ticket.owner}</Td>
+                <Td>{ticket.summary}</Td>
+                <Td>{ticket.status}</Td>
+                <Td>{ticket.points}</Td>
+                <Td>{warning}</Td>
+              </Tr>
+            )
+          })}
         </Tbody>
       </Table>
     </Flex>
