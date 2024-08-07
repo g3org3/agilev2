@@ -12,11 +12,17 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as SprintIdDailyImport } from './routes/$sprintId/daily'
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SprintIdDailyRoute = SprintIdDailyImport.update({
+  path: '/$sprintId/daily',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -31,12 +37,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/$sprintId/daily': {
+      id: '/$sprintId/daily'
+      path: '/$sprintId/daily'
+      fullPath: '/$sprintId/daily'
+      preLoaderRoute: typeof SprintIdDailyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({ IndexRoute })
+export const routeTree = rootRoute.addChildren({
+  IndexRoute,
+  SprintIdDailyRoute,
+})
 
 /* prettier-ignore-end */
 
@@ -46,11 +62,15 @@ export const routeTree = rootRoute.addChildren({ IndexRoute })
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/$sprintId/daily"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/$sprintId/daily": {
+      "filePath": "$sprintId/daily.tsx"
     }
   }
 }
