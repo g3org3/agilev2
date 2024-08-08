@@ -1,6 +1,6 @@
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
-import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
+import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 import { Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -38,7 +38,7 @@ function Daily() {
 
   const { data: tickets = [] } = useQuery({
     queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
-    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse>({
+    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
       filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
       sort: 'status',
     }),
@@ -48,18 +48,23 @@ function Daily() {
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [] } = useQuery({
     queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
-    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse>({
+    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
       filter: selectedDev ? old_filter + ` && owner = '${selectedDev}'` : old_filter,
       sort: 'status',
     }),
     enabled: !!previous_day,
   })
 
+  const { data: sprint } = useQuery({
+    queryKey: [Collections.SprintsView, 'get-one', sprintId],
+    queryFn: () => pb.collection(Collections.SprintsView).getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
+  })
+
   const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
 
   return (
     <Flex flexDir="column" padding="5" h="100vdh" overflow="auto" gap="5">
-      <Heading>{sprintId}</Heading>
+      <Heading>{sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points</Heading>
       <Flex gap="2" alignItems="center">
         <DaySummary tickets={tickets_or_cache} />
         <Flex flexDir="column" gap="4">
@@ -149,17 +154,20 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
   )
 }
 
-function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], old_tickets: TicketsResponse[] }) {
+function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<string[], string[]>[], old_tickets: TicketsResponse[] }) {
   return (
     <Table size="sm" boxShadow="md">
       <Thead>
-        <Tr>
-          <Th>Ticket</Th>
-          <Th>Owner</Th>
-          <Th>Summary</Th>
-          <Th>Status</Th>
-          <Th>Points</Th>
-          <Th>Warning</Th>
+        <Tr background="blue.500">
+          <Th color="white">Ticket</Th>
+          <Th color="white">Owner</Th>
+          <Th color="white">Summary</Th>
+          <Th color="white">Labels</Th>
+          <Th color="white">Epic</Th>
+          <Th color="white">BlockedBy</Th>
+          <Th color="white">Status</Th>
+          <Th color="white">Points</Th>
+          <Th color="white">Warning</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -182,8 +190,28 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], ol
           return (
             <Tr background={color} key={ticket.key}>
               <Td>{ticket.key}</Td>
-              <Td>{ticket.owner}</Td>
-              <Td>{ticket.summary.substring(0, 170)}...</Td>
+              <Td><Avatar title={ticket.owner} size="sm" name={ticket.owner.replace(' EXT', '')} /></Td>
+              <Td title={ticket.summary}>{ticket.summary.substring(0, 110)}...</Td>
+              <Td>{ticket.labels?.join(', ')}</Td>
+              <Td>
+                <a
+                  target="_blank"
+                  href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.epic}
+                >
+                  {ticket.epic_name}
+                </a>
+              </Td>
+              <Td display="flex" gap="2">
+                {ticket.parents?.map(key => (
+                  <a
+                    key={key}
+                    target="_blank"
+                    href={"https://devopsjira.deutsche-boerse.com/browse/" + key}
+                  >
+                    {key}
+                  </a>
+                ))}
+              </Td>
               <Td>{ticket.status}</Td>
               <Td>{ticket.points}</Td>
               <Td>{warning}</Td>
@@ -226,37 +254,56 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
     return byId
   }, [sprintId, selectedDate, staffing])
 
+
+  const data = devs.filter(dev => dev.dev === selectedDev || !selectedDev).map(dev => {
+    const done = tickets.filter(ticket => ticket.status === 'Done' && ticket.owner === dev.dev)
+      .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
+    const to_val = tickets.filter(ticket => ticket.status === 'In Test' && ticket.owner === dev.dev)
+      .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
+    const tbd = byDev[dev.dev] || 0
+
+    return {
+      soft: (done + to_val) - tbd,
+      dev: dev.dev,
+      to_val,
+      done,
+      tbd,
+      late: done - tbd
+    }
+  })
+
+
   return (
-    <Table size="sm" boxShadow="md" width="600px">
+    <Table size="sm" boxShadow="md" width="600px" rounded="lg">
       <Thead>
-        <Tr>
-          <Th>Soft</Th>
-          <Th>Dev</Th>
-          <Th>To Val</Th>
-          <Th>Done</Th>
-          <Th>TBD</Th>
-          <Th>Late</Th>
+        <Tr background="green.500">
+          <Th color="white">Soft</Th>
+          <Th color="white">Dev</Th>
+          <Th color="white">To Val</Th>
+          <Th color="white">Done</Th>
+          <Th color="white">TBD</Th>
+          <Th color="white">Late</Th>
         </Tr>
       </Thead>
       <Tbody>
-        {devs.filter(dev => dev.dev === selectedDev || !selectedDev).map(dev => {
-          const done = tickets.filter(ticket => ticket.status === 'Done' && ticket.owner === dev.dev)
-            .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
-          const to_val = tickets.filter(ticket => ticket.status === 'In Test' && ticket.owner === dev.dev)
-            .reduce((sum, ticket) => sum + (ticket.points || 0), 0)
-          const tbd = byDev[dev.dev] || 0
-
-          return (
-            <Tr background={selectedDev === dev.dev ? 'blue.100' : undefined}>
-              <Td>{(done + to_val) - tbd}</Td>
-              <Td>{dev.dev}</Td>
-              <Td>{to_val}</Td>
-              <Td>{done}</Td>
-              <Td>{tbd}</Td>
-              <Td>{done - tbd}</Td>
-            </Tr>
-          )
-        })}
+        {data.map(row => (
+          <Tr background={selectedDev === row.dev ? 'blue.100' : undefined}>
+            <Td>{row.soft}</Td>
+            <Td>{row.dev}</Td>
+            <Td>{row.to_val}</Td>
+            <Td>{row.done}</Td>
+            <Td>{row.tbd}</Td>
+            <Td>{row.late}</Td>
+          </Tr>
+        ))}
+        <Tr borderTop="2px solid" borderColor="gray.400">
+          <Td>{data.reduce((sum, row) => sum + row.soft, 0)}</Td>
+          <Td fontWeight="bold">Total</Td>
+          <Td>{data.reduce((sum, row) => sum + row.to_val, 0)}</Td>
+          <Td>{data.reduce((sum, row) => sum + row.done, 0)}</Td>
+          <Td>{data.reduce((sum, row) => sum + row.tbd, 0)}</Td>
+          <Td>{data.reduce((sum, row) => sum + row.late, 0)}</Td>
+        </Tr>
       </Tbody>
     </Table>
   )
