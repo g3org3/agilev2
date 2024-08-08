@@ -1,6 +1,7 @@
+import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
-import { Avatar, Button, Flex, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMemo } from 'react'
@@ -54,23 +55,32 @@ function Daily() {
     enabled: !!previous_day,
   })
 
+  const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
+
   return (
     <Flex flexDir="column" padding="5" h="100vdh" overflow="auto" gap="5">
-      <Flex gap="2">
-        <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
-          <Button size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
-        </Link>
-        <Link to="/$sprintId/daily" params={{ sprintId }}>
-          <Button size="sm">reset</Button>
-        </Link>
-        <DateBtns />
+      <Heading>{sprintId}</Heading>
+      <Flex gap="2" alignItems="center">
+        <DaySummary tickets={tickets_or_cache} />
+        <Flex flexDir="column" gap="4">
+          <Flex gap="2">
+            <Link to="/">
+              <Button size="sm">back</Button>
+            </Link>
+            <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
+              <Button size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
+            </Link>
+          </Flex>
+          <Flex gap="2">
+            <DateBtns />
+          </Flex>
+          <Flex gap="2">
+            <DevsBtns />
+          </Flex>
+        </Flex>
       </Flex>
-      <Flex gap="2">
-        <DevsBtns />
-      </Flex>
-      <DaySummary tickets={tickets} />
-      {view === 'table' ? <TableTickets tickets={tickets} old_tickets={old_tickets} /> : null}
-      {view === 'trello' ? <TrelloTickets tickets={tickets} old_tickets={old_tickets} /> : null}
+      {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+      {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
     </Flex>
   )
 }
@@ -82,7 +92,7 @@ function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], o
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Progress' label='Doing' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Review' label='Code Review' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Test' label='To Validate' />
-      <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='Done' label='Done' />
+      <TrelloColumn tickets={tickets.filter(filterIfWasDoneYesterday(old_tickets))} old_tickets={old_tickets} status='Done' label='Done' />
     </Flex>
   )
 }
@@ -124,7 +134,11 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
           return (
             <Flex title={ticket.summary} key={ticket.key} p="2" borderLeft="7px solid" boxShadow="md" borderColor={color} gap="3" alignItems="center" fontFamily="monospace" fontWeight="bold">
               <Avatar size="sm" name={ticket.owner.replace(' EXT', '')} />
-              <Flex>{ticket.key}</Flex>
+              <Flex>
+                <a target="_blank" href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.key}>
+                  {ticket.key}
+                </a>
+              </Flex>
               <Spacer />
               <Flex background="gray.500" color="white" rounded="full" justifyContent="center" alignItems="center" w="30px" h="30px">{ticket.points}</Flex>
             </Flex>
@@ -149,7 +163,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], ol
         </Tr>
       </Thead>
       <Tbody>
-        {tickets.sort(SortFn).map(ticket => {
+        {tickets.sort(SortFn).filter(filterIfWasDoneYesterday(old_tickets)).map(ticket => {
           const warning = ['Done'].includes(ticket.status)
             ? null
             : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
@@ -275,19 +289,33 @@ function DateBtns() {
     })
   })
 
-  return dates.map(date => {
-    const _selectedDate = date.date
-    return (
+  const final_date = getNextDate(dates.length > 0 ? dates[dates.length - 1].date : null)
+
+  return (
+    <>
+      <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, view }}>
+        <Button size="sm">reset date</Button>
+      </Link>
+      {dates.map(date => {
+        const _selectedDate = date.date
+        return (
+          <Link
+            key={date.id}
+            to="/$sprintId/daily"
+            params={{ sprintId }}
+            search={{ selectedDate: _selectedDate, selectedDev, view }}>
+            <Button variant="outline" colorScheme="green" isActive={selectedDate === _selectedDate} size="sm">{_selectedDate}</Button>
+          </Link>
+        )
+      })}
       <Link
-        key={date.id}
         to="/$sprintId/daily"
         params={{ sprintId }}
-        search={{ selectedDate: _selectedDate, selectedDev, view }}>
-        <Button isActive={selectedDate === _selectedDate} size="sm">{_selectedDate}</Button>
+        search={{ selectedDate: final_date, selectedDev, view }}>
+        <Button variant="outline" colorScheme="green" isActive={selectedDate === final_date} size="sm">{final_date}</Button>
       </Link>
-    )
-  })
-
+    </>
+  )
 }
 
 function DevsBtns() {
@@ -302,16 +330,33 @@ function DevsBtns() {
     }),
   })
 
-  return devs.map(dev => {
-    return (
-      <Link
-        key={dev.dev}
-        to="/$sprintId/daily"
-        params={{ sprintId }}
-        search={{ selectedDate, selectedDev: dev.dev, view }}
-      >
-        <Button size="sm" isActive={selectedDev === dev.dev}>{dev.dev}</Button>
+  return (
+    <>
+      <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDate, view }}>
+        <Button size="sm">reset dev</Button>
       </Link>
-    )
-  })
+      {devs.map(dev => {
+        return (
+          <Link
+            key={dev.dev}
+            to="/$sprintId/daily"
+            params={{ sprintId }}
+            search={{ selectedDate, selectedDev: dev.dev, view }}
+          >
+            <Button variant="outline" colorScheme="blue" size="sm" isActive={selectedDev === dev.dev}>{dev.dev}</Button>
+          </Link>
+        )
+      })}
+    </>
+  )
+}
+
+
+function filterIfWasDoneYesterday(old_tickets: TicketsResponse[]) {
+  return (ticket: TicketsResponse) => {
+    if (ticket.status !== 'Done') return true
+    const old_status = old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
+
+    return old_status !== 'Done'
+  }
 }
