@@ -8,6 +8,7 @@ import type { RecordService } from 'pocketbase'
 export enum Collections {
 	LatestSprintPointsView = "latest_sprint_points_view",
 	LatestSprintSnapshotDateView = "latest_sprint_snapshot_date_view",
+	Problems = "problems",
 	SprintDatesView = "sprint_dates_view",
 	SprintDevsView = "sprint_devs_view",
 	Sprints = "sprints",
@@ -57,9 +58,18 @@ export type LatestSprintSnapshotDateViewRecord<Tdate = unknown> = {
 	sprint?: string
 }
 
+export type ProblemsRecord = {
+	date?: string
+	delayed_points?: number
+	description?: string
+	sprint?: string
+	ticket?: string
+}
+
 export type SprintDatesViewRecord = {
 	sprint?: string
 	utc_date?: IsoDateString
+	date?: string
 }
 
 export type SprintDevsViewRecord = {
@@ -93,6 +103,7 @@ export type SprintsViewRecord<Tdone_points = unknown, Ttbd_points = unknown, Tto
 }
 
 export type StaffingRecord = {
+	date?: string
 	dev?: string
 	points?: number
 	sprint?: string
@@ -125,6 +136,7 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type LatestSprintPointsViewResponse<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Texpand = unknown> = Required<LatestSprintPointsViewRecord<Tcr_points, Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points>> & BaseSystemFields<Texpand>
 export type LatestSprintSnapshotDateViewResponse<Tdate = unknown, Texpand = unknown> = Required<LatestSprintSnapshotDateViewRecord<Tdate>> & BaseSystemFields<Texpand>
+export type ProblemsResponse<Texpand = unknown> = Required<ProblemsRecord> & BaseSystemFields<Texpand>
 export type SprintDatesViewResponse<Texpand = unknown> = Required<SprintDatesViewRecord> & BaseSystemFields<Texpand>
 export type SprintDevsViewResponse<Texpand = unknown> = Required<SprintDevsViewRecord> & BaseSystemFields<Texpand>
 export type SprintsResponse<Texpand = unknown> = Required<SprintsRecord> & BaseSystemFields<Texpand>
@@ -139,6 +151,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 export type CollectionRecords = {
 	latest_sprint_points_view: LatestSprintPointsViewRecord
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewRecord
+	problems: ProblemsRecord
 	sprint_dates_view: SprintDatesViewRecord
 	sprint_devs_view: SprintDevsViewRecord
 	sprints: SprintsRecord
@@ -152,6 +165,7 @@ export type CollectionRecords = {
 export type CollectionResponses = {
 	latest_sprint_points_view: LatestSprintPointsViewResponse
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewResponse
+	problems: ProblemsResponse
 	sprint_dates_view: SprintDatesViewResponse
 	sprint_devs_view: SprintDevsViewResponse
 	sprints: SprintsResponse
@@ -168,6 +182,7 @@ export type CollectionResponses = {
 export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'latest_sprint_points_view'): RecordService<LatestSprintPointsViewResponse>
 	collection(idOrName: 'latest_sprint_snapshot_date_view'): RecordService<LatestSprintSnapshotDateViewResponse>
+	collection(idOrName: 'problems'): RecordService<ProblemsResponse>
 	collection(idOrName: 'sprint_dates_view'): RecordService<SprintDatesViewResponse>
 	collection(idOrName: 'sprint_devs_view'): RecordService<SprintDevsViewResponse>
 	collection(idOrName: 'sprints'): RecordService<SprintsResponse>

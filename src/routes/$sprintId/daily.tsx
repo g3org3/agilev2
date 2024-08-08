@@ -27,12 +27,10 @@ function Daily() {
   })
 
   const previous_day = useMemo(() => {
-    // TODO: change utc_date to date
-    const index = dates.map(date => date.utc_date.split(' ')[0])
+    const index = dates.map(date => date.date)
       .findIndex((date) => date === selectedDate)
 
-    // TODO: change utc_date to date
-    return index === 0 || index === -1 ? null : dates[index - 1].utc_date.split(' ')[0]
+    return index === 0 || index === -1 ? null : dates[index - 1].date
   }, [dates, selectedDate])
 
   const filter = `sprint = '${sprintId}' && date = '${selectedDate}' && status != 'To Do'`
@@ -278,8 +276,7 @@ function DateBtns() {
   })
 
   return dates.map(date => {
-    // TODO: change utc_date to date
-    const _selectedDate = date.utc_date.split(' ')[0]
+    const _selectedDate = date.date
     return (
       <Link
         key={date.id}
