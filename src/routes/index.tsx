@@ -20,7 +20,7 @@ function Home() {
     <Table size="sm" background="white" boxShadow="md" rounded="md">
       <Thead>
         <Tr background="purple.500">
-          <Th color="white">Sprint</Th>
+          <Th color="white" p="2">Sprint</Th>
           <Th color="white">Points TBD</Th>
           <Th color="white">Done Points</Th>
           <Th color="white">To Val Points</Th>

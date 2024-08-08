@@ -1,10 +1,10 @@
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
-import { Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import z from 'zod'
 
 export const Route = createFileRoute('/$sprintId/daily')({
@@ -19,6 +19,7 @@ export const Route = createFileRoute('/$sprintId/daily')({
 function Daily() {
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev, view = 'table' } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
     queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId],
@@ -26,6 +27,16 @@ function Daily() {
       filter: `sprint = '${sprintId}'`
     })
   })
+
+  useEffect(() => {
+    if (!selectedDate && dates.length > 0) {
+      navigate({
+        to: '/$sprintId/daily',
+        params: { sprintId },
+        search: { selectedDate: dates[0].date },
+      })
+    }
+  }, [selectedDate, dates])
 
   const previous_day = useMemo(() => {
     const index = dates.map(date => date.date)
@@ -63,7 +74,7 @@ function Daily() {
   const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
 
   return (
-    <Flex flexDir="column" padding="5" h="100vdh" overflow="auto" gap="5">
+    <Flex flexDir="column" padding="5" h="100vh" overflow="auto" gap="5" background="whitesmoke">
       <Heading>{sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points</Heading>
       <Flex gap="2" alignItems="center">
         <DaySummary tickets={tickets_or_cache} />
@@ -73,7 +84,7 @@ function Daily() {
               <Button size="sm">back</Button>
             </Link>
             <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
-              <Button size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
+              <Button variant="outline" colorScheme="purple" size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
             </Link>
           </Flex>
           <Flex gap="2">
@@ -84,15 +95,17 @@ function Daily() {
           </Flex>
         </Flex>
       </Flex>
-      {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
-      {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+      <Flex flexDir="column" flex="1" overflow="auto" py="4">
+        {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+        {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+      </Flex>
     </Flex>
   )
 }
 
 function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], old_tickets: TicketsResponse[] }) {
   return (
-    <Flex gap="4">
+    <Flex gap="4" flex="1" py="5" overflow="auto">
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='To Develop' label='Daily' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Progress' label='Doing' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Review' label='Code Review' />
@@ -105,9 +118,9 @@ function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], o
 function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: TicketsResponse[], status: string, label: string, old_tickets: TicketsResponse[] }) {
   const column_tickets = tickets.filter(ticket => ticket.status === status)
   return (
-    <Flex flexDir="column" boxShadow="md" width="20%">
-      <Flex px="4" py="2" background="gray.200" fontWeight="bold" alignItems="center">
-        <Flex>{label}</Flex>
+    <Flex flexDir="column" boxShadow="md" width="20%" flex="1" overflow="auto" background="white" rounded="md">
+      <Flex px="4" py="2" background="blue.600" fontWeight="bold" alignItems="center">
+        <Flex color="white">{label}</Flex>
         <Spacer />
         <Flex
           h="36px"
@@ -120,7 +133,7 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
           {column_tickets.reduce((sum, ticket) => sum + (ticket.points || 0), 0)}
         </Flex>
       </Flex>
-      <Flex flexDir="column" p="3" gap="3">
+      <Flex flexDir="column" p="3" gap="3" flex="1" overflow="auto">
         {column_tickets.map(ticket => {
           const warning = ['Done'].includes(ticket.status)
             ? null
@@ -140,9 +153,9 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
             <Flex title={ticket.summary} key={ticket.key} p="2" borderLeft="7px solid" boxShadow="md" borderColor={color} gap="3" alignItems="center" fontFamily="monospace" fontWeight="bold">
               <Avatar size="sm" name={ticket.owner.replace(' EXT', '')} />
               <Flex>
-                <a target="_blank" href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.key}>
+                <ChakraLink target="_blank" href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.key}>
                   {ticket.key}
-                </a>
+                </ChakraLink>
               </Flex>
               <Spacer />
               <Flex background="gray.500" color="white" rounded="full" justifyContent="center" alignItems="center" w="30px" h="30px">{ticket.points}</Flex>
@@ -156,10 +169,10 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
 
 function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<string[], string[]>[], old_tickets: TicketsResponse[] }) {
   return (
-    <Table size="sm" boxShadow="md">
+    <Table size="sm" boxShadow="md" background="white" rounded="lg">
       <Thead>
         <Tr background="blue.500">
-          <Th color="white">Ticket</Th>
+          <Th color="white" p="2">Ticket</Th>
           <Th color="white">Owner</Th>
           <Th color="white">Summary</Th>
           <Th color="white">Labels</Th>
@@ -189,28 +202,37 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
 
           return (
             <Tr background={color} key={ticket.key}>
-              <Td>{ticket.key}</Td>
+              <Td>
+                <ChakraLink
+                  target="_blank"
+                  href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.key}
+                >
+                  {ticket.key}
+                </ChakraLink>
+              </Td>
               <Td><Avatar title={ticket.owner} size="sm" name={ticket.owner.replace(' EXT', '')} /></Td>
               <Td title={ticket.summary}>{ticket.summary.substring(0, 110)}...</Td>
               <Td>{ticket.labels?.join(', ')}</Td>
               <Td>
-                <a
+                <ChakraLink
                   target="_blank"
                   href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.epic}
                 >
                   {ticket.epic_name}
-                </a>
+                </ChakraLink>
               </Td>
-              <Td display="flex" gap="2">
-                {ticket.parents?.map(key => (
-                  <a
-                    key={key}
-                    target="_blank"
-                    href={"https://devopsjira.deutsche-boerse.com/browse/" + key}
-                  >
-                    {key}
-                  </a>
-                ))}
+              <Td>
+                <Flex gap="2">
+                  {ticket.parents?.map(key => (
+                    <ChakraLink
+                      key={key}
+                      target="_blank"
+                      href={"https://devopsjira.deutsche-boerse.com/browse/" + key}
+                    >
+                      {key}
+                    </ChakraLink>
+                  ))}
+                </Flex>
               </Td>
               <Td>{ticket.status}</Td>
               <Td>{ticket.points}</Td>
@@ -274,7 +296,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
 
 
   return (
-    <Table size="sm" boxShadow="md" width="600px" rounded="lg">
+    <Table size="sm" boxShadow="md" width="600px" rounded="lg" background="white">
       <Thead>
         <Tr background="green.500">
           <Th color="white">Soft</Th>
@@ -287,7 +309,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
       </Thead>
       <Tbody>
         {data.map(row => (
-          <Tr background={selectedDev === row.dev ? 'blue.100' : undefined}>
+          <Tr key={row.dev} background={selectedDev === row.dev ? 'blue.100' : undefined}>
             <Td>{row.soft}</Td>
             <Td>{row.dev}</Td>
             <Td>{row.to_val}</Td>
@@ -296,7 +318,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
             <Td>{row.late}</Td>
           </Tr>
         ))}
-        <Tr borderTop="2px solid" borderColor="gray.400">
+        <Tr borderTop="3px solid" borderColor="gray.300">
           <Td>{data.reduce((sum, row) => sum + row.soft, 0)}</Td>
           <Td fontWeight="bold">Total</Td>
           <Td>{data.reduce((sum, row) => sum + row.to_val, 0)}</Td>
