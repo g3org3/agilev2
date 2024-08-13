@@ -28,6 +28,7 @@ function Daily() {
     })
   })
 
+  // to set the date if not present in the url
   useEffect(() => {
     if (!selectedDate && dates.length > 0) {
       navigate({
@@ -47,7 +48,7 @@ function Daily() {
 
   const filter = `sprint = '${sprintId}' && date = '${selectedDate}' && status != 'To Do'`
 
-  const { data: tickets = [] } = useQuery({
+  const { data: tickets = [], isFetching: isFetchingTickets } = useQuery({
     queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
       filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
@@ -57,7 +58,7 @@ function Daily() {
   })
 
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
-  const { data: old_tickets = [] } = useQuery({
+  const { data: old_tickets = [], isFetching: isFetchingOldTickets } = useQuery({
     queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
       filter: selectedDev ? old_filter + ` && owner = '${selectedDev}'` : old_filter,
@@ -75,7 +76,9 @@ function Daily() {
 
   return (
     <Flex flexDir="column" padding="5" h="100vh" overflow="auto" gap="5" background="whitesmoke">
-      <Heading>{sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points</Heading>
+      <Heading>
+        {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
+      </Heading>
       <Flex gap="2" alignItems="center">
         <DaySummary tickets={tickets_or_cache} />
         <Flex flexDir="column" gap="4">
@@ -96,6 +99,7 @@ function Daily() {
         </Flex>
       </Flex>
       <Flex flexDir="column" flex="1" overflow="auto" py="4">
+        {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.6"></Flex>}
         {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
         {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
       </Flex>
