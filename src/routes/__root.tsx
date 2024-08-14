@@ -6,12 +6,15 @@ import { ChakraProvider } from '@chakra-ui/react'
 
 import { queryClient } from '@/services/queryClient'
 import { theme } from '@/services/theme'
+import Layout from '@/components/Layout'
 
 export const Route = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
-        <Outlet />
+        <Layout>
+          <Outlet />
+        </Layout>
       </ChakraProvider>
       <TanStackRouterDevtools />
       <ReactQueryDevtools initialIsOpen={false} />

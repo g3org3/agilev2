@@ -1,7 +1,7 @@
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
-import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr, Select } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
@@ -75,35 +75,28 @@ function Daily() {
   const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
 
   return (
-    <Flex flexDir="column" padding="5" h="100vh" overflow="auto" gap="5" background="whitesmoke">
-      <Heading>
-        {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
+    <>
+      <Heading fontWeight="regular">
+        <Flex gap="2" flexDir={{ base: "column", md: "row" }}>
+          {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
+          <Spacer />
+          <DevsBtns />
+          <DateBtns />
+          <Spacer />
+          <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
+            <Button variant="outline" colorScheme="purple" size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
+          </Link>
+        </Flex>
       </Heading>
-      <Flex gap="2" alignItems="center">
+      <Flex gap="2" alignItems="flex-start" flex="1" flexDir={{ base: "column", md: "row" }}>
         <DaySummary tickets={tickets_or_cache} />
-        <Flex flexDir="column" gap="4">
-          <Flex gap="2">
-            <Link to="/">
-              <Button size="sm">back</Button>
-            </Link>
-            <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
-              <Button variant="outline" colorScheme="purple" size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
-            </Link>
-          </Flex>
-          <Flex gap="2">
-            <DateBtns />
-          </Flex>
-          <Flex gap="2">
-            <DevsBtns />
-          </Flex>
+        <Flex flexDir="column" flex="1" overflowY="auto" paddingBottom="4">
+          {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.6"></Flex>}
+          {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+          {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
         </Flex>
       </Flex>
-      <Flex flexDir="column" flex="1" overflow="auto" py="4">
-        {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.6"></Flex>}
-        {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
-        {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
-      </Flex>
-    </Flex>
+    </>
   )
 }
 
@@ -178,13 +171,13 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
         <Tr background="blue.500">
           <Th color="white" p="2">Ticket</Th>
           <Th color="white">Owner</Th>
-          <Th color="white">Summary</Th>
-          <Th color="white">Labels</Th>
-          <Th color="white">Epic</Th>
-          <Th color="white">BlockedBy</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Summary</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Labels</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Epic</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">BlockedBy</Th>
           <Th color="white">Status</Th>
           <Th color="white">Points</Th>
-          <Th color="white">Warning</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Warning</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -215,9 +208,9 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
                 </ChakraLink>
               </Td>
               <Td><Avatar title={ticket.owner} size="sm" name={ticket.owner.replace(' EXT', '')} /></Td>
-              <Td title={ticket.summary}>{ticket.summary.substring(0, 110)}...</Td>
-              <Td>{ticket.labels?.join(', ')}</Td>
-              <Td>
+              <Td display={{ base: 'none', md: 'table-cell' }} title={ticket.summary}>{ticket.summary.substring(0, 110)}...</Td>
+              <Td display={{ base: 'none', md: 'table-cell' }}>{ticket.labels?.join(', ')}</Td>
+              <Td display={{ base: 'none', md: 'table-cell' }}>
                 <ChakraLink
                   target="_blank"
                   href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.epic}
@@ -225,7 +218,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
                   {ticket.epic_name}
                 </ChakraLink>
               </Td>
-              <Td>
+              <Td display={{ base: 'none', md: 'table-cell' }}>
                 <Flex gap="2">
                   {ticket.parents?.map(key => (
                     <ChakraLink
@@ -240,7 +233,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
               </Td>
               <Td>{ticket.status}</Td>
               <Td>{ticket.points}</Td>
-              <Td>{warning}</Td>
+              <Td display={{ base: 'none', md: 'table-cell' }}>{warning}</Td>
             </Tr>
           )
         })}
@@ -300,15 +293,15 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
 
 
   return (
-    <Table size="sm" boxShadow="md" width="600px" rounded="lg" background="white">
+    <Table size="sm" boxShadow="md" width={{ base: '100%', md: '600px' }} rounded="lg" background="white">
       <Thead>
         <Tr background="green.500">
           <Th color="white">Soft</Th>
           <Th color="white">Dev</Th>
-          <Th color="white">To Val</Th>
-          <Th color="white">Done</Th>
-          <Th color="white">TBD</Th>
-          <Th color="white">Late</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">To Val</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Done</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">TBD</Th>
+          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Late</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -316,19 +309,19 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
           <Tr key={row.dev} background={selectedDev === row.dev ? 'blue.100' : undefined}>
             <Td>{row.soft}</Td>
             <Td>{row.dev}</Td>
-            <Td>{row.to_val}</Td>
-            <Td>{row.done}</Td>
-            <Td>{row.tbd}</Td>
-            <Td>{row.late}</Td>
+            <Td display={{ base: 'none', md: 'table-cell' }}>{row.to_val}</Td>
+            <Td display={{ base: 'none', md: 'table-cell' }}>{row.done}</Td>
+            <Td display={{ base: 'none', md: 'table-cell' }}>{row.tbd}</Td>
+            <Td display={{ base: 'none', md: 'table-cell' }}>{row.late}</Td>
           </Tr>
         ))}
         <Tr borderTop="3px solid" borderColor="gray.300">
           <Td>{data.reduce((sum, row) => sum + row.soft, 0)}</Td>
           <Td fontWeight="bold">Total</Td>
-          <Td>{data.reduce((sum, row) => sum + row.to_val, 0)}</Td>
-          <Td>{data.reduce((sum, row) => sum + row.done, 0)}</Td>
-          <Td>{data.reduce((sum, row) => sum + row.tbd, 0)}</Td>
-          <Td>{data.reduce((sum, row) => sum + row.late, 0)}</Td>
+          <Td display={{ base: 'none', md: 'table-cell' }}>{data.reduce((sum, row) => sum + row.to_val, 0)}</Td>
+          <Td display={{ base: 'none', md: 'table-cell' }}>{data.reduce((sum, row) => sum + row.done, 0)}</Td>
+          <Td display={{ base: 'none', md: 'table-cell' }}>{data.reduce((sum, row) => sum + row.tbd, 0)}</Td>
+          <Td display={{ base: 'none', md: 'table-cell' }}>{data.reduce((sum, row) => sum + row.late, 0)}</Td>
         </Tr>
       </Tbody>
     </Table>
@@ -394,6 +387,7 @@ function DateBtns() {
 function DevsBtns() {
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev, view } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   const { data: devs = [] } = useQuery({
     queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
@@ -403,23 +397,22 @@ function DevsBtns() {
     }),
   })
 
+  const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    navigate({
+      to: "/$sprintId/daily",
+      params: { sprintId },
+      search: { selectedDev: event.target.value, view, selectedDate },
+    })
+  }
+
   return (
     <>
-      <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDate, view }}>
-        <Button size="sm">reset dev</Button>
-      </Link>
-      {devs.map(dev => {
-        return (
-          <Link
-            key={dev.dev}
-            to="/$sprintId/daily"
-            params={{ sprintId }}
-            search={{ selectedDate, selectedDev: dev.dev, view }}
-          >
-            <Button variant="outline" colorScheme="blue" size="sm" isActive={selectedDev === dev.dev}>{dev.dev}</Button>
-          </Link>
-        )
-      })}
+      <Select maxW={{ base: '100%', md: '200px' }} value={selectedDev || ""} onChange={onSelectDev}>
+        <option value="">-</option>
+        {devs.map(dev => (
+          <option key={dev.dev}>{dev.dev}</option>
+        ))}
+      </Select>
     </>
   )
 }
