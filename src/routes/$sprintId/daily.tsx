@@ -1,11 +1,12 @@
-import { getNextDate } from '@/services/dates'
-import { pb } from '@/services/pb'
-import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr, Select } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 import z from 'zod'
+
+import { getNextDate } from '@/services/dates'
+import { pb } from '@/services/pb'
+import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 
 export const Route = createFileRoute('/$sprintId/daily')({
   component: Daily,
@@ -23,9 +24,10 @@ function Daily() {
 
   const { data: dates = [] } = useQuery({
     queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId],
-    queryFn: () => pb.collection(Collections.SprintDatesView).getFullList<SprintDatesViewResponse>({
-      filter: `sprint = '${sprintId}'`
-    })
+    queryFn: () => pb.collection(Collections.SprintDatesView)
+      .getFullList<SprintDatesViewResponse>({
+        filter: `sprint = '${sprintId}'`
+      })
   })
 
   // to set the date if not present in the url
@@ -50,26 +52,29 @@ function Daily() {
 
   const { data: tickets = [], isFetching: isFetchingTickets } = useQuery({
     queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
-    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
-      filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
-      sort: 'status',
-    }),
+    queryFn: () => pb.collection(Collections.Tickets)
+      .getFullList<TicketsResponse<string[], string[]>>({
+        filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
+        sort: 'status',
+      }),
     enabled: !!selectedDate,
   })
 
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [], isFetching: isFetchingOldTickets } = useQuery({
     queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
-    queryFn: () => pb.collection(Collections.Tickets).getFullList<TicketsResponse<string[], string[]>>({
-      filter: selectedDev ? old_filter + ` && owner = '${selectedDev}'` : old_filter,
-      sort: 'status',
-    }),
+    queryFn: () => pb.collection(Collections.Tickets)
+      .getFullList<TicketsResponse<string[], string[]>>({
+        filter: selectedDev ? old_filter + ` && owner = '${selectedDev}'` : old_filter,
+        sort: 'status',
+      }),
     enabled: !!previous_day,
   })
 
   const { data: sprint } = useQuery({
     queryKey: [Collections.SprintsView, 'get-one', sprintId],
-    queryFn: () => pb.collection(Collections.SprintsView).getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
+    queryFn: () => pb.collection(Collections.SprintsView)
+      .getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
   })
 
   const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets

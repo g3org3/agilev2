@@ -8,6 +8,8 @@ import { queryClient } from '@/services/queryClient'
 import { theme } from '@/services/theme'
 import Layout from '@/components/Layout'
 
+const isDev = import.meta.env.DEV
+
 export const Route = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
@@ -16,8 +18,8 @@ export const Route = createRootRoute({
           <Outlet />
         </Layout>
       </ChakraProvider>
-      <TanStackRouterDevtools />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {isDev && <TanStackRouterDevtools />}
+      {isDev && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   ),
 })

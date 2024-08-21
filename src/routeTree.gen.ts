@@ -11,10 +11,22 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RoadmapImport } from './routes/roadmap'
+import { Route as OverviewImport } from './routes/overview'
 import { Route as IndexImport } from './routes/index'
 import { Route as SprintIdDailyImport } from './routes/$sprintId/daily'
 
 // Create/Update Routes
+
+const RoadmapRoute = RoadmapImport.update({
+  path: '/roadmap',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OverviewRoute = OverviewImport.update({
+  path: '/overview',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   path: '/',
@@ -37,6 +49,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/overview': {
+      id: '/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof OverviewImport
+      parentRoute: typeof rootRoute
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapImport
+      parentRoute: typeof rootRoute
+    }
     '/$sprintId/daily': {
       id: '/$sprintId/daily'
       path: '/$sprintId/daily'
@@ -51,6 +77,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
+  OverviewRoute,
+  RoadmapRoute,
   SprintIdDailyRoute,
 })
 
@@ -63,11 +91,19 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/overview",
+        "/roadmap",
         "/$sprintId/daily"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/overview": {
+      "filePath": "overview.tsx"
+    },
+    "/roadmap": {
+      "filePath": "roadmap.tsx"
     },
     "/$sprintId/daily": {
       "filePath": "$sprintId/daily.tsx"

@@ -84,6 +84,119 @@
     }
   },
   {
+    "id": "5cfsfr9uft8d9vx",
+    "name": "epics",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "24cjshdg",
+        "name": "name",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "b5z7gvrt",
+        "name": "epic_key",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "9w2yolag",
+        "name": "estimated_dev",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": 0,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "bazwlkkh",
+        "name": "estimated_design",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": 0,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "mtx9c8kv",
+        "name": "estimated_ba",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "hrzczslm",
+        "name": "estimated_conception",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "u3blpzz3",
+        "name": "estimated_nfr",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
     "id": "ftxg8ur5dr9rwd2",
     "name": "problems",
     "type": "base",
@@ -166,6 +279,65 @@
     "createRule": "",
     "updateRule": "",
     "deleteRule": "",
+    "options": {}
+  },
+  {
+    "id": "lnhj7h9al17kkeb",
+    "name": "roadmap",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "ak4z1nqd",
+        "name": "sprint",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "3jqyvaf6",
+        "name": "start_date",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "dwnyjtoz",
+        "name": "done",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
     "options": {}
   },
   {
@@ -253,6 +425,20 @@
         "presentable": false,
         "unique": false,
         "options": {}
+      },
+      {
+        "system": false,
+        "id": "hp8gyuv7",
+        "name": "date",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
@@ -547,7 +733,7 @@
     "schema": [
       {
         "system": false,
-        "id": "1cl0wkib",
+        "id": "woplw2z0",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -561,7 +747,7 @@
       },
       {
         "system": false,
-        "id": "jy0db44b",
+        "id": "3mqlib4h",
         "name": "date",
         "type": "text",
         "required": false,
@@ -575,7 +761,7 @@
       },
       {
         "system": false,
-        "id": "xsa72g8w",
+        "id": "0nvtsrok",
         "name": "tbd_points",
         "type": "json",
         "required": false,
@@ -587,7 +773,7 @@
       },
       {
         "system": false,
-        "id": "eaoeihbw",
+        "id": "pnowvbx2",
         "name": "total_points",
         "type": "json",
         "required": false,
@@ -599,7 +785,7 @@
       },
       {
         "system": false,
-        "id": "k4hlbzmg",
+        "id": "en4qhhvq",
         "name": "cr_points",
         "type": "json",
         "required": false,
@@ -611,7 +797,7 @@
       },
       {
         "system": false,
-        "id": "x8f5fa6n",
+        "id": "accypoo4",
         "name": "to_val_points",
         "type": "json",
         "required": false,
@@ -623,7 +809,7 @@
       },
       {
         "system": false,
-        "id": "9qpqgqla",
+        "id": "rsgvzoef",
         "name": "done_points",
         "type": "json",
         "required": false,
@@ -641,7 +827,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "select \n  concat(t.sprint, '-',t.date) as id,\n  t.sprint,\n  t.date,\n  s.points as tbd_points,\n  sum(t.points) as total_points,\n  sum(\n    case \n      when t.status = 'In Review' then 1\n      else 0\n    end\n  ) as cr_points,\n  sum(\n    case \n      when t.status = 'In Test' then 1\n      else 0\n    end\n  ) as to_val_points,\n  sum(\n    case \n      when t.status = 'Done' then 1\n      else 0\n    end\n  ) as done_points\nfrom tickets t\ninner join sprints_points_tbd_view s on s.sprint = t.sprint\ngroup by t.sprint, t.date"
+      "query": "select \n  concat(t.sprint, '-',t.date) as id,\n  t.sprint,\n  t.date,\n  s.points as tbd_points,\n  sum(t.points) as total_points,\n  sum(\n    case \n      when t.status = 'In Review' then t.points\n      else 0\n    end\n  ) as cr_points,\n  sum(\n    case \n      when t.status = 'In Test' then t.points\n      else 0\n    end\n  ) as to_val_points,\n  sum(\n    case \n      when t.status = 'Done' then t.points\n      else 0\n    end\n  ) as done_points\nfrom tickets t\ninner join sprints_points_tbd_view s on s.sprint = t.sprint\ngroup by t.sprint, t.date"
     }
   },
   {
@@ -695,7 +881,7 @@
     "schema": [
       {
         "system": false,
-        "id": "f0nohmwe",
+        "id": "lvo9mx0p",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -709,7 +895,7 @@
       },
       {
         "system": false,
-        "id": "ic1ykx2q",
+        "id": "u1qqcthe",
         "name": "utc_date",
         "type": "date",
         "required": false,
@@ -718,6 +904,20 @@
         "options": {
           "min": "",
           "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "7xr3t8is",
+        "name": "date",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
         }
       }
     ],
@@ -728,7 +928,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "SELECT\n  (row_number() over()) as id,\n  s.sprint,\n  s.utc_date\nFROM staffing s\nGROUP BY s.sprint, s.utc_date"
+      "query": "SELECT\n  (row_number() over()) as id,\n  s.sprint,\n  s.utc_date,\n  s.date\nFROM staffing s\nGROUP BY s.sprint, s.utc_date, s.date"
     }
   },
   {
@@ -784,7 +984,7 @@
     "schema": [
       {
         "system": false,
-        "id": "v6olvknt",
+        "id": "rawfhum5",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -798,7 +998,7 @@
       },
       {
         "system": false,
-        "id": "17kvminv",
+        "id": "rmpqjvko",
         "name": "points",
         "type": "json",
         "required": false,
@@ -810,7 +1010,7 @@
       },
       {
         "system": false,
-        "id": "wzdbho2o",
+        "id": "cx0bqoii",
         "name": "start_at",
         "type": "json",
         "required": false,
@@ -822,7 +1022,7 @@
       },
       {
         "system": false,
-        "id": "cvnq8pxv",
+        "id": "ex5k89ll",
         "name": "endt_at",
         "type": "json",
         "required": false,
@@ -840,7 +1040,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "SELECT\n  s.sprint as id,\n  s.sprint,\n  sum(s.points) as points,\n  min(s.utc_date) as start_at,\n  max(s.utc_date) as endt_at\nFROM staffing s\ngroup by s.sprint"
+      "query": "SELECT\n  s.sprint as id,\n  s.sprint,\n  sum(s.points) as points,\n  min(s.date) as start_at,\n  max(s.date) as endt_at\nFROM staffing s\ngroup by s.sprint"
     }
   },
   {

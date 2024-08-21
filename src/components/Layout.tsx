@@ -1,4 +1,4 @@
-import { Container, Flex, Link as ChakraLink } from "@chakra-ui/react";
+import { Container, Flex, Button } from "@chakra-ui/react";
 import { Link } from '@tanstack/react-router'
 
 
@@ -20,7 +20,7 @@ function Navbar() {
       <Container maxW="container.2xl">
         <Flex>
           <Link to="/">
-            <ChakraLink fontWeight="bold" letterSpacing="2px" fontSize="lg">Agile</ChakraLink>
+            <Button size="sm" variant="ghost" fontWeight="bold" letterSpacing="2px" fontSize="lg">Agile</Button>
           </Link>
         </Flex>
       </Container>

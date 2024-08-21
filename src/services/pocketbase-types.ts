@@ -6,9 +6,11 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export enum Collections {
+	Epics = "epics",
 	LatestSprintPointsView = "latest_sprint_points_view",
 	LatestSprintSnapshotDateView = "latest_sprint_snapshot_date_view",
 	Problems = "problems",
+	Roadmap = "roadmap",
 	SprintDatesView = "sprint_dates_view",
 	SprintDevsView = "sprint_devs_view",
 	Sprints = "sprints",
@@ -43,6 +45,18 @@ export type AuthSystemFields<T = never> = {
 
 // Record types for each collection
 
+export type EpicsRecord = {
+	epic_key?: string
+	estimated_ba?: number
+	estimated_conception?: number
+	estimated_design?: number
+	estimated_dev?: number
+	estimated_nfr?: number
+	name?: string
+	background?: string
+	status?: string
+}
+
 export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown> = {
 	cr_points?: null | Tcr_points
 	date?: string
@@ -66,10 +80,17 @@ export type ProblemsRecord = {
 	ticket?: string
 }
 
+export type RoadmapRecord = {
+	done?: RecordIdString[]
+	sprint?: string
+	start_date?: string
+	release?: string
+}
+
 export type SprintDatesViewRecord = {
+	date?: string
 	sprint?: string
 	utc_date?: IsoDateString
-	date?: string
 }
 
 export type SprintDevsViewRecord = {
@@ -78,6 +99,7 @@ export type SprintDevsViewRecord = {
 }
 
 export type SprintsRecord = {
+	date?: string
 	fourth_track?: string
 	is_code_freeze?: boolean
 	name: string
@@ -134,9 +156,11 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
+export type EpicsResponse<Texpand = unknown> = Required<EpicsRecord> & BaseSystemFields<Texpand>
 export type LatestSprintPointsViewResponse<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Texpand = unknown> = Required<LatestSprintPointsViewRecord<Tcr_points, Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points>> & BaseSystemFields<Texpand>
 export type LatestSprintSnapshotDateViewResponse<Tdate = unknown, Texpand = unknown> = Required<LatestSprintSnapshotDateViewRecord<Tdate>> & BaseSystemFields<Texpand>
 export type ProblemsResponse<Texpand = unknown> = Required<ProblemsRecord> & BaseSystemFields<Texpand>
+export type RoadmapResponse<Texpand = unknown> = Required<RoadmapRecord> & BaseSystemFields<Texpand>
 export type SprintDatesViewResponse<Texpand = unknown> = Required<SprintDatesViewRecord> & BaseSystemFields<Texpand>
 export type SprintDevsViewResponse<Texpand = unknown> = Required<SprintDevsViewRecord> & BaseSystemFields<Texpand>
 export type SprintsResponse<Texpand = unknown> = Required<SprintsRecord> & BaseSystemFields<Texpand>
@@ -149,9 +173,11 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	epics: EpicsRecord
 	latest_sprint_points_view: LatestSprintPointsViewRecord
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewRecord
 	problems: ProblemsRecord
+	roadmap: RoadmapRecord
 	sprint_dates_view: SprintDatesViewRecord
 	sprint_devs_view: SprintDevsViewRecord
 	sprints: SprintsRecord
@@ -163,9 +189,11 @@ export type CollectionRecords = {
 }
 
 export type CollectionResponses = {
+	epics: EpicsResponse
 	latest_sprint_points_view: LatestSprintPointsViewResponse
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewResponse
 	problems: ProblemsResponse
+	roadmap: RoadmapResponse
 	sprint_dates_view: SprintDatesViewResponse
 	sprint_devs_view: SprintDevsViewResponse
 	sprints: SprintsResponse
@@ -180,9 +208,11 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'epics'): RecordService<EpicsResponse>
 	collection(idOrName: 'latest_sprint_points_view'): RecordService<LatestSprintPointsViewResponse>
 	collection(idOrName: 'latest_sprint_snapshot_date_view'): RecordService<LatestSprintSnapshotDateViewResponse>
 	collection(idOrName: 'problems'): RecordService<ProblemsResponse>
+	collection(idOrName: 'roadmap'): RecordService<RoadmapResponse>
 	collection(idOrName: 'sprint_dates_view'): RecordService<SprintDatesViewResponse>
 	collection(idOrName: 'sprint_devs_view'): RecordService<SprintDevsViewResponse>
 	collection(idOrName: 'sprints'): RecordService<SprintsResponse>
