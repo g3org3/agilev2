@@ -14,12 +14,13 @@ export const Route = createFileRoute('/$sprintId/daily')({
     selectedDate: z.string().nullish(),
     selectedDev: z.string().nullish(),
     view: z.enum(['table', 'trello']).nullish(),
+    filterBy: z.enum(['problems']).nullish(),
   })
 })
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table' } = Route.useSearch()
+  const { selectedDate, selectedDev, view = 'table', filterBy } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -77,7 +78,14 @@ function Daily() {
       .getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
   })
 
-  const tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
+  let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
+  if (filterBy === 'problems') {
+    tickets_or_cache = tickets_or_cache.filter((ticket) => {
+      const labels =ticket.labels?.join(' ')  || ''
+      const problems = ['ko', 'return', 'wrong', 'estimated']
+      return problems.filter(problem => labels.includes(problem)).length > 0
+    })
+  }
 
   return (
     <>

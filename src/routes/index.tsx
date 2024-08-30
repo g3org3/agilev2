@@ -3,7 +3,8 @@ import { Button, Flex, Table, Thead, Th, Tr, Td, Tbody, Heading } from '@chakra-
 import { useQuery } from '@tanstack/react-query'
 
 import { pb } from '@/services/pb'
-import { Collections, SprintsViewResponse, } from '@/services/pocketbase-types'
+import { Collections, SprintsLabelsViewResponse, SprintsViewResponse, } from '@/services/pocketbase-types'
+import { useMemo } from 'react'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -17,6 +18,21 @@ function Home() {
     })
   })
 
+  const { data: sprintlabels = [] } = useQuery({
+    queryKey: [Collections.SprintsLabelsView, 'get-all'],
+    queryFn: () => pb.collection(Collections.SprintsLabelsView)
+      .getFullList<SprintsLabelsViewResponse<number, number, number, number>>()
+  })
+
+  const bySprint  = useMemo(() => {
+    const _bySprint: Record<string, SprintsLabelsViewResponse<number, number, number, number>> = {}
+    for (const sprint of sprintlabels) {
+      _bySprint[sprint.sprint] = sprint
+    }
+
+    return _bySprint
+  }, [sprintlabels])
+
   return (
     <>
       <Heading fontWeight="regular">Sprints</Heading>
@@ -26,6 +42,7 @@ function Home() {
             <Th color="white" p="2">Sprint</Th>
             <Th color="white">Points TBD</Th>
             <Th color="white">Done Points</Th>
+            <Th display={{ base: 'none', md: 'table-cell' }} color="white">Val Returns</Th>
             <Th display={{ base: 'none', md: 'table-cell' }} color="white" colSpan={2}>Result (performance)</Th>
             <Th color="white">Actions</Th>
             <Th display={{ base: 'none', md: 'table-cell' }} color="white">Points in Sprint</Th>
@@ -44,13 +61,16 @@ function Home() {
                 <Td>{tbd_points?.toFixed(1)}</Td>
                 <Td display={{ base: 'none', md: 'table-cell' }}>{pseudo_done.toFixed(1)}</Td>
                 <Td>
+                  {bySprint[sprint.sprint]?.validation_return_count}
+                </Td>
+                <Td>
                   <Flex fontWeight="bold" color={diff < 0 ? 'red.600' : 'green.600'}>
                     {diff < 0 ? diff.toFixed(1) : `+${diff.toFixed(1)}`}
                   </Flex>
-                </Td>
+                </Td> 
                 <Td display={{ base: 'none', md: 'table-cell' }}>
-                  <Flex fontWeight="bold" color={diff < 0 ? 'red.600' : 'green.600'}>
-                    {percentage < 0 ? percentage.toFixed(1) : `+${percentage.toFixed(1)}`} %
+                  <Flex fontWeight="bold" fontSize="xs" color={diff < 0 ? 'red.600' : 'green.600'}>
+                    {percentage < 0 ? percentage.toFixed(0) : `+${percentage.toFixed(0)}`} %
                   </Flex>
                 </Td>
                 <Td>
