@@ -14,6 +14,7 @@ export enum Collections {
 	SprintDatesView = "sprint_dates_view",
 	SprintDevsView = "sprint_devs_view",
 	Sprints = "sprints",
+	SprintsLabelsView = "sprints_labels_view",
 	SprintsPointsTbdView = "sprints_points_tbd_view",
 	SprintsView = "sprints_view",
 	Staffing = "staffing",
@@ -46,6 +47,7 @@ export type AuthSystemFields<T = never> = {
 // Record types for each collection
 
 export type EpicsRecord = {
+	background?: string
 	epic_key?: string
 	estimated_ba?: number
 	estimated_conception?: number
@@ -53,11 +55,10 @@ export type EpicsRecord = {
 	estimated_dev?: number
 	estimated_nfr?: number
 	name?: string
-	background?: string
 	status?: string
 }
 
-export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown> = {
+export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Tvalidation_returns = unknown> = {
 	cr_points?: null | Tcr_points
 	date?: string
 	done_points?: null | Tdone_points
@@ -65,6 +66,7 @@ export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = un
 	tbd_points?: null | Ttbd_points
 	to_val_points?: null | Tto_val_points
 	total_points?: null | Ttotal_points
+	validation_returns?: null | Tvalidation_returns
 }
 
 export type LatestSprintSnapshotDateViewRecord<Tdate = unknown> = {
@@ -81,10 +83,16 @@ export type ProblemsRecord = {
 }
 
 export type RoadmapRecord = {
+	ac?: RecordIdString[]
+	backlog?: RecordIdString[]
+	briefing?: RecordIdString[]
+	conception?: RecordIdString[]
+	design?: RecordIdString[]
+	dev?: RecordIdString[]
 	done?: RecordIdString[]
+	release?: string
 	sprint?: string
 	start_date?: string
-	release?: string
 }
 
 export type SprintDatesViewRecord = {
@@ -106,6 +114,15 @@ export type SprintsRecord = {
 	secondary_track?: string
 	sprint_goal?: string
 	third_track?: string
+}
+
+export type SprintsLabelsViewRecord<Tko_count = unknown, Tunderestimated_count = unknown, Tvalidation_return_count = unknown, Twrong_count = unknown> = {
+	ko_count?: null | Tko_count
+	sprint?: string
+	total?: number
+	underestimated_count?: null | Tunderestimated_count
+	validation_return_count?: null | Tvalidation_return_count
+	wrong_count?: null | Twrong_count
 }
 
 export type SprintsPointsTbdViewRecord<Tendt_at = unknown, Tpoints = unknown, Tstart_at = unknown> = {
@@ -157,13 +174,14 @@ export type UsersRecord = {
 
 // Response types include system fields and match responses from the PocketBase API
 export type EpicsResponse<Texpand = unknown> = Required<EpicsRecord> & BaseSystemFields<Texpand>
-export type LatestSprintPointsViewResponse<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Texpand = unknown> = Required<LatestSprintPointsViewRecord<Tcr_points, Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points>> & BaseSystemFields<Texpand>
+export type LatestSprintPointsViewResponse<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Tvalidation_returns = unknown, Texpand = unknown> = Required<LatestSprintPointsViewRecord<Tcr_points, Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points, Tvalidation_returns>> & BaseSystemFields<Texpand>
 export type LatestSprintSnapshotDateViewResponse<Tdate = unknown, Texpand = unknown> = Required<LatestSprintSnapshotDateViewRecord<Tdate>> & BaseSystemFields<Texpand>
 export type ProblemsResponse<Texpand = unknown> = Required<ProblemsRecord> & BaseSystemFields<Texpand>
 export type RoadmapResponse<Texpand = unknown> = Required<RoadmapRecord> & BaseSystemFields<Texpand>
 export type SprintDatesViewResponse<Texpand = unknown> = Required<SprintDatesViewRecord> & BaseSystemFields<Texpand>
 export type SprintDevsViewResponse<Texpand = unknown> = Required<SprintDevsViewRecord> & BaseSystemFields<Texpand>
 export type SprintsResponse<Texpand = unknown> = Required<SprintsRecord> & BaseSystemFields<Texpand>
+export type SprintsLabelsViewResponse<Tko_count = unknown, Tunderestimated_count = unknown, Tvalidation_return_count = unknown, Twrong_count = unknown, Texpand = unknown> = Required<SprintsLabelsViewRecord<Tko_count, Tunderestimated_count, Tvalidation_return_count, Twrong_count>> & BaseSystemFields<Texpand>
 export type SprintsPointsTbdViewResponse<Tendt_at = unknown, Tpoints = unknown, Tstart_at = unknown, Texpand = unknown> = Required<SprintsPointsTbdViewRecord<Tendt_at, Tpoints, Tstart_at>> & BaseSystemFields<Texpand>
 export type SprintsViewResponse<Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Texpand = unknown> = Required<SprintsViewRecord<Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points>> & BaseSystemFields<Texpand>
 export type StaffingResponse<Texpand = unknown> = Required<StaffingRecord> & BaseSystemFields<Texpand>
@@ -181,6 +199,7 @@ export type CollectionRecords = {
 	sprint_dates_view: SprintDatesViewRecord
 	sprint_devs_view: SprintDevsViewRecord
 	sprints: SprintsRecord
+	sprints_labels_view: SprintsLabelsViewRecord
 	sprints_points_tbd_view: SprintsPointsTbdViewRecord
 	sprints_view: SprintsViewRecord
 	staffing: StaffingRecord
@@ -197,6 +216,7 @@ export type CollectionResponses = {
 	sprint_dates_view: SprintDatesViewResponse
 	sprint_devs_view: SprintDevsViewResponse
 	sprints: SprintsResponse
+	sprints_labels_view: SprintsLabelsViewResponse
 	sprints_points_tbd_view: SprintsPointsTbdViewResponse
 	sprints_view: SprintsViewResponse
 	staffing: StaffingResponse
@@ -216,6 +236,7 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'sprint_dates_view'): RecordService<SprintDatesViewResponse>
 	collection(idOrName: 'sprint_devs_view'): RecordService<SprintDevsViewResponse>
 	collection(idOrName: 'sprints'): RecordService<SprintsResponse>
+	collection(idOrName: 'sprints_labels_view'): RecordService<SprintsLabelsViewResponse>
 	collection(idOrName: 'sprints_points_tbd_view'): RecordService<SprintsPointsTbdViewResponse>
 	collection(idOrName: 'sprints_view'): RecordService<SprintsViewResponse>
 	collection(idOrName: 'staffing'): RecordService<StaffingResponse>

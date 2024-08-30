@@ -186,14 +186,42 @@
           "max": null,
           "noDecimal": false
         }
+      },
+      {
+        "system": false,
+        "id": "po392qz1",
+        "name": "background",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "q2brqzxo",
+        "name": "status",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
       }
     ],
     "indexes": [],
     "listRule": null,
-    "viewRule": null,
-    "createRule": null,
-    "updateRule": null,
-    "deleteRule": null,
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": "",
     "options": {}
   },
   {
@@ -317,6 +345,20 @@
       },
       {
         "system": false,
+        "id": "mh5knpxz",
+        "name": "release",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
         "id": "dwnyjtoz",
         "name": "done",
         "type": "relation",
@@ -330,14 +372,112 @@
           "maxSelect": null,
           "displayFields": null
         }
+      },
+      {
+        "system": false,
+        "id": "65s5rqnf",
+        "name": "dev",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "5ybyj5ek",
+        "name": "backlog",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "nuuri5qs",
+        "name": "conception",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "unbnhdlo",
+        "name": "ac",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "3s1rr8h3",
+        "name": "design",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "pf0nkktp",
+        "name": "briefing",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "5cfsfr9uft8d9vx",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": null
+        }
       }
     ],
-    "indexes": [],
-    "listRule": null,
-    "viewRule": null,
-    "createRule": null,
-    "updateRule": null,
-    "deleteRule": null,
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_roadmap_sprint_uniq` ON `roadmap` (`sprint`)"
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": "",
     "options": {}
   },
   {
@@ -442,7 +582,7 @@
       }
     ],
     "indexes": [],
-    "listRule": null,
+    "listRule": "",
     "viewRule": null,
     "createRule": null,
     "updateRule": null,
@@ -733,7 +873,7 @@
     "schema": [
       {
         "system": false,
-        "id": "woplw2z0",
+        "id": "wqgnqdd5",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -747,7 +887,7 @@
       },
       {
         "system": false,
-        "id": "3mqlib4h",
+        "id": "rgh2vln2",
         "name": "date",
         "type": "text",
         "required": false,
@@ -761,7 +901,7 @@
       },
       {
         "system": false,
-        "id": "0nvtsrok",
+        "id": "fteocukl",
         "name": "tbd_points",
         "type": "json",
         "required": false,
@@ -773,7 +913,7 @@
       },
       {
         "system": false,
-        "id": "pnowvbx2",
+        "id": "shnhewrn",
         "name": "total_points",
         "type": "json",
         "required": false,
@@ -785,7 +925,7 @@
       },
       {
         "system": false,
-        "id": "en4qhhvq",
+        "id": "bxys1pzx",
         "name": "cr_points",
         "type": "json",
         "required": false,
@@ -797,7 +937,7 @@
       },
       {
         "system": false,
-        "id": "accypoo4",
+        "id": "mflfyope",
         "name": "to_val_points",
         "type": "json",
         "required": false,
@@ -809,8 +949,20 @@
       },
       {
         "system": false,
-        "id": "rsgvzoef",
+        "id": "eaqr1wmc",
         "name": "done_points",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "2gj8imgl",
+        "name": "validation_returns",
         "type": "json",
         "required": false,
         "presentable": false,
@@ -827,7 +979,7 @@
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "select \n  concat(t.sprint, '-',t.date) as id,\n  t.sprint,\n  t.date,\n  s.points as tbd_points,\n  sum(t.points) as total_points,\n  sum(\n    case \n      when t.status = 'In Review' then t.points\n      else 0\n    end\n  ) as cr_points,\n  sum(\n    case \n      when t.status = 'In Test' then t.points\n      else 0\n    end\n  ) as to_val_points,\n  sum(\n    case \n      when t.status = 'Done' then t.points\n      else 0\n    end\n  ) as done_points\nfrom tickets t\ninner join sprints_points_tbd_view s on s.sprint = t.sprint\ngroup by t.sprint, t.date"
+      "query": "select \n  concat(t.sprint, '-',t.date) as id,\n  t.sprint,\n  t.date,\n  s.points as tbd_points,\n  sum(t.points) as total_points,\n  sum(\n    case \n      when t.status = 'In Review' then t.points\n      else 0\n    end\n  ) as cr_points,\n  sum(\n    case \n      when t.status = 'In Test' then t.points\n      else 0\n    end\n  ) as to_val_points,\n  sum(\n    case \n      when t.status = 'Done' then t.points\n      else 0\n    end\n  ) as done_points,\n  sum(\n  case \n      when t.labels = 'validation-return' then t.points\n      else 0\n    end\n  ) as validation_returns\nfrom tickets t\ninner join sprints_points_tbd_view s on s.sprint = t.sprint\ngroup by t.sprint, t.date"
     }
   },
   {
@@ -974,6 +1126,99 @@
     "deleteRule": null,
     "options": {
       "query": "SELECT\n  (row_number() over()) as id,\n  s.sprint,\n  s.dev\nFROM staffing s\nGROUP BY s.sprint, s.dev"
+    }
+  },
+  {
+    "id": "zudxowoaimb82o3",
+    "name": "sprints_labels_view",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "tpdbvp6t",
+        "name": "sprint",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "7ommjz1e",
+        "name": "total",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "auz9rnr1",
+        "name": "wrong_count",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "5gnpnkfn",
+        "name": "validation_return_count",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "wufweyi2",
+        "name": "ko_count",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "ifcmiug6",
+        "name": "underestimated_count",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "select \n  t.sprint as id,\n  t.sprint,\n  count(t.key) as total,\n  sum(\n    case when (t.labels like '%wrong%') then 1\n    else 0\n    end\n  ) as wrong_count,\n  sum(\n    case when (t.labels like '%return%') then 1\n    else 0\n    end\n  ) as validation_return_count,\n  sum(\n    case when (t.labels like '%ko%') then 1\n    else 0\n    end\n  ) as ko_count,\n  sum(\n    case when (t.labels like '%estimated%') then 1\n    else 0\n    end\n  ) as underestimated_count\nfrom tickets as t\ninner join latest_sprint_snapshot_date_view l on l.date = t.date\nwhere labels like '%wrong%' or labels like '%ko%' or labels like '%return%' or labels like '%underestimated%'\nGROUP BY t.sprint"
     }
   },
   {
