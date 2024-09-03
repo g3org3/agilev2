@@ -42,7 +42,7 @@ function Home() {
             <Th color="white" p="2">Sprint</Th>
             <Th color="white">Points TBD</Th>
             <Th color="white">Done Points</Th>
-            <Th display={{ base: 'none', md: 'table-cell' }} color="white">Val Returns</Th>
+            <Th title="" display={{ base: 'none', md: 'table-cell' }} color="white">Problems</Th>
             <Th display={{ base: 'none', md: 'table-cell' }} color="white" colSpan={2}>Result (performance)</Th>
             <Th color="white">Actions</Th>
             <Th display={{ base: 'none', md: 'table-cell' }} color="white">Points in Sprint</Th>
@@ -60,8 +60,8 @@ function Home() {
                 <Td>{sprint.id}</Td>
                 <Td>{tbd_points?.toFixed(1)}</Td>
                 <Td display={{ base: 'none', md: 'table-cell' }}>{pseudo_done.toFixed(1)}</Td>
-                <Td>
-                  {bySprint[sprint.sprint]?.validation_return_count}
+                <Td display={{ base: 'none', md: 'table-cell' }}>
+                  {bySprint[sprint.sprint]?.total}
                 </Td>
                 <Td>
                   <Flex fontWeight="bold" color={diff < 0 ? 'red.600' : 'green.600'}>

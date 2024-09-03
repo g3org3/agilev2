@@ -8,13 +8,15 @@ import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 
+const filterBySchema = z.enum(['problems', '']).nullish()
+
 export const Route = createFileRoute('/$sprintId/daily')({
   component: Daily,
   validateSearch: z.object({
     selectedDate: z.string().nullish(),
     selectedDev: z.string().nullish(),
-    view: z.enum(['table', 'trello']).nullish(),
-    filterBy: z.enum(['problems']).nullish(),
+    view: z.enum(['', 'table', 'trello']).nullish(),
+    filterBy: filterBySchema,
   })
 })
 
@@ -82,7 +84,7 @@ function Daily() {
   if (filterBy === 'problems') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
       const labels =ticket.labels?.join(' ')  || ''
-      const problems = ['ko', 'return', 'wrong', 'estimated']
+      const problems = ['ko', 'return', 'wrong', 'estimated', 'missed']
       return problems.filter(problem => labels.includes(problem)).length > 0
     })
   }
@@ -93,9 +95,9 @@ function Daily() {
         <Flex gap="2" flexDir={{ base: "column", md: "row" }}>
           {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
           <Spacer />
+          <Filter />
           <DevsBtns />
           <DateBtns />
-          <Spacer />
           <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
             <Button variant="outline" colorScheme="purple" size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
           </Link>
@@ -357,9 +359,35 @@ function SortFn(ta: TicketsResponse, tb: TicketsResponse): number {
   return statusb - statusa
 }
 
+function Filter() {
+  const navigate = Route.useNavigate()
+  const { sprintId } = Route.useParams()
+  const { filterBy, view, selectedDev, selectedDate } = Route.useSearch()
+
+  const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    const value = filterBySchema.parse(event.target.value)
+    
+    navigate({
+      to: "/$sprintId/daily",
+      params: { sprintId },
+      search: { filterBy: value || undefined, view, selectedDev, selectedDate },
+    })
+  }
+
+  return (
+    <>
+      <Select maxW={{ base: '100%', md: '200px' }} value={filterBy || ""} onChange={onSelectDev}>
+        <option value="">filter by</option>
+        <option>problems</option>
+      </Select>
+    </>
+  )
+}
+
 function DateBtns() {
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev, view } = Route.useSearch()
+  const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
     queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId],
@@ -370,31 +398,52 @@ function DateBtns() {
 
   const final_date = getNextDate(dates.length > 0 ? dates[dates.length - 1].date : null)
 
+  // mobile version
+  const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    navigate({
+      to: "/$sprintId/daily",
+      params: { sprintId },
+      search: { selectedDate: event.target.value, view, selectedDev },
+    })
+  }
+
   return (
     <>
-      <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, view }}>
-        <Button size="sm">reset date</Button>
-      </Link>
-      {dates.map(date => {
-        const _selectedDate = date.date
-        return (
-          <Link
-            key={date.id}
-            to="/$sprintId/daily"
-            params={{ sprintId }}
-            search={{ selectedDate: _selectedDate, selectedDev, view }}>
-            <Button variant="outline" colorScheme="green" isActive={selectedDate === _selectedDate} size="sm">{_selectedDate}</Button>
-          </Link>
-        )
-      })}
-      <Link
-        to="/$sprintId/daily"
-        params={{ sprintId }}
-        search={{ selectedDate: final_date, selectedDev, view }}>
-        <Button variant="outline" colorScheme="green" isActive={selectedDate === final_date} size="sm">{final_date}</Button>
-      </Link>
+      <Select maxW={{ base: '100%', md: '200px' }} value={selectedDate || ""} onChange={onSelectDev}>
+        <option value="">-</option>
+        {dates.map(date => (
+          <option key={date.id}>{date.date}</option>
+        ))}
+        <option>{final_date}</option>
+      </Select>
     </>
   )
+
+  // return (
+  //   <>
+  //     <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, view }}>
+  //       <Button size="sm">reset date</Button>
+  //     </Link>
+  //     {dates.map(date => {
+  //       const _selectedDate = date.date
+  //       return (
+  //         <Link
+  //           key={date.id}
+  //           to="/$sprintId/daily"
+  //           params={{ sprintId }}
+  //           search={{ selectedDate: _selectedDate, selectedDev, view }}>
+  //           <Button variant="outline" colorScheme="green" isActive={selectedDate === _selectedDate} size="sm">{_selectedDate}</Button>
+  //         </Link>
+  //       )
+  //     })}
+  //     <Link
+  //       to="/$sprintId/daily"
+  //       params={{ sprintId }}
+  //       search={{ selectedDate: final_date, selectedDev, view }}>
+  //       <Button variant="outline" colorScheme="green" isActive={selectedDate === final_date} size="sm">{final_date}</Button>
+  //     </Link>
+  //   </>
+  // )
 }
 
 function DevsBtns() {
@@ -421,10 +470,13 @@ function DevsBtns() {
   return (
     <>
       <Select maxW={{ base: '100%', md: '200px' }} value={selectedDev || ""} onChange={onSelectDev}>
-        <option value="">-</option>
+        <option value="">filter by owner</option>
+        <option value="">----</option>
         {devs.map(dev => (
           <option key={dev.dev}>{dev.dev}</option>
         ))}
+        <option value="">----</option>
+        <option value="">reset</option>
       </Select>
     </>
   )
