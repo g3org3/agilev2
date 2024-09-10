@@ -18,12 +18,13 @@ export const Route = createFileRoute('/$sprintId/daily')({
     selectedDev: z.string().nullish(),
     view: z.enum(['', 'table', 'trello']).nullish(),
     filterBy: filterBySchema,
+    viewSummary: z.boolean().nullish(),
   })
 })
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table', filterBy } = Route.useSearch()
+  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -95,6 +96,15 @@ function Daily() {
       <Heading fontWeight="regular">
         <Flex gap="2" flexDir={{ base: "column", md: "row" }}>
           {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
+          <Link
+            to="/$sprintId/daily"
+            params={{ sprintId }}
+            search={(params) => ({ ...params, viewSummary: !viewSummary })}
+          >
+            <Button isActive={!!viewSummary} variant="outline" size="sm" colorScheme="green">
+              toggle summary
+            </Button>
+          </Link>
           <Spacer />
           <Filter />
           <DevsBtns />
@@ -102,7 +112,7 @@ function Daily() {
           <Link
             to="/$sprintId/daily"
             params={{ sprintId }}
-            search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}
+            search={(params) => ({ ...params, view: view === 'table' ? 'trello' : 'table' })}
           >
             <Button variant="outline" size="sm" colorScheme="purple">
               change to {view === 'table' ? 'trello' : 'table'}
@@ -111,7 +121,7 @@ function Daily() {
         </Flex>
       </Heading>
       <Flex gap="2" alignItems="flex-start" flex="1" flexDir={{ base: "column", md: "row" }}>
-        <DaySummary tickets={tickets_or_cache} />
+        {viewSummary ? <DaySummary tickets={tickets_or_cache} /> : null}
         <Flex flexDir="column" flex="1" overflowY="auto" paddingBottom="4">
           {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.6"></Flex>}
           {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
@@ -369,7 +379,7 @@ function SortFn(ta: TicketsResponse, tb: TicketsResponse): number {
 function Filter() {
   const navigate = Route.useNavigate()
   const { sprintId } = Route.useParams()
-  const { filterBy, view, selectedDev, selectedDate } = Route.useSearch()
+  const { filterBy } = Route.useSearch()
 
   const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     const value = filterBySchema.parse(event.target.value)
@@ -377,7 +387,7 @@ function Filter() {
     navigate({
       to: "/$sprintId/daily",
       params: { sprintId },
-      search: { filterBy: value || undefined, view, selectedDev, selectedDate },
+      search: (params) => ({ ...params, filterBy: value || undefined }),
     })
   }
 
@@ -402,7 +412,7 @@ function prettyISODate(datestr?: string | null) {
 
 function DateBtns() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view } = Route.useSearch()
+  const { selectedDate } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -414,12 +424,11 @@ function DateBtns() {
 
   const final_date = getNextDate(dates.length > 0 ? dates[dates.length - 1].date : null)
 
-  // mobile version
   const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     navigate({
       to: "/$sprintId/daily",
       params: { sprintId },
-      search: { selectedDate: event.target.value, view, selectedDev },
+      search: (params) => ({ ...params, selectedDate: event.target.value }),
     })
   }
 
@@ -434,32 +443,6 @@ function DateBtns() {
       </Select>
     </>
   )
-
-  // return (
-  //   <>
-  //     <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, view }}>
-  //       <Button size="sm">reset date</Button>
-  //     </Link>
-  //     {dates.map(date => {
-  //       const _selectedDate = date.date
-  //       return (
-  //         <Link
-  //           key={date.id}
-  //           to="/$sprintId/daily"
-  //           params={{ sprintId }}
-  //           search={{ selectedDate: _selectedDate, selectedDev, view }}>
-  //           <Button variant="outline" colorScheme="green" isActive={selectedDate === _selectedDate} size="sm">{_selectedDate}</Button>
-  //         </Link>
-  //       )
-  //     })}
-  //     <Link
-  //       to="/$sprintId/daily"
-  //       params={{ sprintId }}
-  //       search={{ selectedDate: final_date, selectedDev, view }}>
-  //       <Button variant="outline" colorScheme="green" isActive={selectedDate === final_date} size="sm">{final_date}</Button>
-  //     </Link>
-  //   </>
-  // )
 }
 
 function DevsBtns() {
@@ -497,7 +480,6 @@ function DevsBtns() {
     </>
   )
 }
-
 
 function filterIfWasDoneYesterday(old_tickets: TicketsResponse[]) {
   return (ticket: TicketsResponse) => {
