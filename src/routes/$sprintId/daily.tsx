@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 import z from 'zod'
+import { DateTime } from 'luxon'
 
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
@@ -83,7 +84,7 @@ function Daily() {
   let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
   if (filterBy === 'problems') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
-      const labels =ticket.labels?.join(' ')  || ''
+      const labels = ticket.labels?.join(' ') || ''
       const problems = ['ko', 'return', 'wrong', 'estimated', 'missed']
       return problems.filter(problem => labels.includes(problem)).length > 0
     })
@@ -98,8 +99,14 @@ function Daily() {
           <Filter />
           <DevsBtns />
           <DateBtns />
-          <Link to="/$sprintId/daily" params={{ sprintId }} search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}>
-            <Button variant="outline" colorScheme="purple" size="sm">change to {view === 'table' ? 'trello' : 'table'}</Button>
+          <Link
+            to="/$sprintId/daily"
+            params={{ sprintId }}
+            search={{ selectedDev, selectedDate, view: view === 'table' ? 'trello' : 'table' }}
+          >
+            <Button variant="outline" size="sm" colorScheme="purple">
+              change to {view === 'table' ? 'trello' : 'table'}
+            </Button>
           </Link>
         </Flex>
       </Heading>
@@ -366,7 +373,7 @@ function Filter() {
 
   const onSelectDev: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     const value = filterBySchema.parse(event.target.value)
-    
+
     navigate({
       to: "/$sprintId/daily",
       params: { sprintId },
@@ -382,6 +389,15 @@ function Filter() {
       </Select>
     </>
   )
+}
+
+
+function prettyISODate(datestr?: string | null) {
+  if (!datestr) return null
+
+  const date = DateTime.fromSQL(`${datestr} 00:00:00.000Z`)
+
+  return date.toFormat('EEE d MMM')
 }
 
 function DateBtns() {
@@ -412,9 +428,9 @@ function DateBtns() {
       <Select maxW={{ base: '100%', md: '200px' }} value={selectedDate || ""} onChange={onSelectDev}>
         <option value="">-</option>
         {dates.map(date => (
-          <option key={date.id}>{date.date}</option>
+          <option key={date.id} value={date.date}>{prettyISODate(date.date)}</option>
         ))}
-        <option>{final_date}</option>
+        <option value={final_date || ""}>{prettyISODate(final_date)}</option>
       </Select>
     </>
   )
