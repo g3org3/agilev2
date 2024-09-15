@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   Button,
-  Flex,
   Table,
   Thead,
   Th,
@@ -9,6 +8,8 @@ import {
   Td,
   Tbody,
   Heading,
+  Badge,
+  Container,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 
@@ -45,7 +46,7 @@ function Home() {
         >(),
   })
 
-  const bySprint = useMemo(() => {
+  const problemsBySprint = useMemo(() => {
     const _bySprint: Record<
       string,
       SprintsLabelsViewResponse<number, number, number, number>
@@ -59,91 +60,71 @@ function Home() {
 
   return (
     <>
-      <Heading fontWeight="regular">Sprints</Heading>
-      <Table background="white" size="sm" boxShadow="md" rounded="md">
-        <Thead>
-          <Tr background="purple.500">
-            <Th color="white" p="2">
-              Sprint
-            </Th>
-            <Th color="white">Total Points</Th>
-            <Th color="white">Done Points</Th>
-            <Th
-              title=""
-              display={{ base: 'none', md: 'table-cell' }}
-              color="white"
-            >
-              Problems
-            </Th>
-            <Th
-              display={{ base: 'none', md: 'table-cell' }}
-              color="white"
-              colSpan={2}
-            >
-              Result (performance)
-            </Th>
-            <Th color="white">Actions</Th>
-            <Th display={{ base: 'none', md: 'table-cell' }} color="white">
-              Points in Sprint
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {sprints.map((sprint) => {
-            const {
-              tbd_points = 1,
-              to_val_points = 0,
-              done_points = 0,
-            } = sprint
-            const pseudo_done = (done_points || 0) + (to_val_points || 0)
-            const diff = pseudo_done - (tbd_points || 0)
-            const percentage =
-              Math.floor((100 * pseudo_done) / (tbd_points || 1)) - 100
+      <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
+        <Heading fontWeight="regular">Sprints</Heading>
+        <Table background="white" size="sm" boxShadow="md" rounded="md">
+          <Thead>
+            <Tr background="teal.600">
+              <Th color="white">Sprint</Th>
+              <Th color="white" display={{ base: 'none', md: 'table-cell' }}>
+                Total Points
+              </Th>
+              <Th color="white">Completed</Th>
+              <Th display={{ base: 'none', md: 'table-cell' }} color="white">
+                Problems
+              </Th>
+              <Th color="white">Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {sprints.map((sprint) => {
+              const {
+                tbd_points = 1,
+                to_val_points = 0,
+                done_points = 0,
+              } = sprint
+              const pseudo_done = (done_points || 0) + (to_val_points || 0)
+              const percentage =
+                Math.floor((100 * pseudo_done) / (tbd_points || 1)) - 100
 
-            return (
-              <Tr key={sprint.id}>
-                <Td>{sprint.id}</Td>
-                <Td>{tbd_points?.toFixed(1)}</Td>
-                <Td display={{ base: 'none', md: 'table-cell' }}>
-                  {pseudo_done.toFixed(1)}
-                </Td>
-                <Td display={{ base: 'none', md: 'table-cell' }}>
-                  {bySprint[sprint.sprint]?.total}
-                </Td>
-                <Td>
-                  <Flex
-                    fontWeight="bold"
-                    color={diff < 0 ? 'red.600' : 'green.600'}
-                  >
-                    {diff < 0 ? diff.toFixed(1) : `+${diff.toFixed(1)}`}
-                  </Flex>
-                </Td>
-                <Td display={{ base: 'none', md: 'table-cell' }}>
-                  <Flex
-                    fontWeight="bold"
-                    fontSize="xs"
-                    color={diff < 0 ? 'red.600' : 'green.600'}
-                  >
-                    {percentage < 0
-                      ? percentage.toFixed(0)
-                      : `+${percentage.toFixed(0)}`}{' '}
-                    %
-                  </Flex>
-                </Td>
-                <Td>
-                  <Link to="/$sprintId/daily" params={{ sprintId: sprint.id }}>
-                    <Button size="sm">view</Button>
-                  </Link>
-                  {/* <Link><Button size="sm" disabled>staffing</Button></Link> */}
-                </Td>
-                <Td display={{ base: 'none', md: 'table-cell' }}>
-                  {sprint.total_points?.toFixed(1)}
-                </Td>
-              </Tr>
-            )
-          })}
-        </Tbody>
-      </Table>
+              return (
+                <Tr key={sprint.id}>
+                  <Td>{sprint.id}</Td>
+                  <Td display={{ base: 'none', md: 'table-cell' }}>
+                    {tbd_points?.toFixed(1)}
+                  </Td>
+                  <Td>
+                    <Badge
+                      colorScheme={
+                        percentage < 0
+                          ? percentage < -9
+                            ? 'red'
+                            : 'orange'
+                          : 'green'
+                      }
+                      rounded="lg"
+                      px="3"
+                    >
+                      {pseudo_done} / {tbd_points}
+                    </Badge>
+                  </Td>
+                  <Td display={{ base: 'none', md: 'table-cell' }}>
+                    {problemsBySprint[sprint.sprint]?.total}
+                  </Td>
+                  <Td>
+                    <Link
+                      to="/$sprintId/daily"
+                      params={{ sprintId: sprint.id }}
+                    >
+                      <Button size={{ base: 'xs', md: 'sm' }}>view</Button>
+                    </Link>
+                  </Td>
+                </Tr>
+              )
+            })}
+          </Tbody>
+        </Table>
+      </Container>
     </>
   )
 }

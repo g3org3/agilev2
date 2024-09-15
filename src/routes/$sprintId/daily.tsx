@@ -44,7 +44,7 @@ function Daily() {
         search: { selectedDate: dates[0].date },
       })
     }
-  }, [selectedDate, dates])
+  }, [selectedDate, dates, sprintId, navigate])
 
   const previous_day = useMemo(() => {
     const index = dates.map(date => date.date)
@@ -303,7 +303,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
     }
 
     return byId
-  }, [sprintId, selectedDate, staffing])
+  }, [staffing])
 
 
   const data = devs.filter(dev => dev.dev === selectedDev || !selectedDev).map(dev => {
