@@ -10,8 +10,11 @@ import {
   Heading,
   Badge,
   Container,
+  Flex,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { AxisOptions, Chart } from 'react-charts'
 
 import { pb } from '@/services/pb'
 import {
@@ -19,14 +22,13 @@ import {
   SprintsLabelsViewResponse,
   SprintsViewResponse,
 } from '@/services/pocketbase-types'
-import { useMemo } from 'react'
 
 export const Route = createFileRoute('/')({
   component: Home,
 })
 
 function Home() {
-  const { data: sprints = [] } = useQuery({
+  const { data: sprints = [], isFetching: isFetchingSprint } = useQuery({
     queryKey: [Collections.SprintsView, 'get-all', 'sort-sprint-desc'],
     queryFn: () =>
       pb
@@ -36,7 +38,7 @@ function Home() {
         }),
   })
 
-  const { data: sprintlabels = [] } = useQuery({
+  const { data: sprintlabels = [], isFetching: isFetchingLabels } = useQuery({
     queryKey: [Collections.SprintsLabelsView, 'get-all'],
     queryFn: () =>
       pb
@@ -58,10 +60,38 @@ function Home() {
     return _bySprint
   }, [sprintlabels])
 
+  const skip_sprints = ['Sprint 110', 'Sprint 111', 'Sprint 124']
+
+  const problems = Object.keys(problemsBySprint)
+    .filter((sprint) => !skip_sprints.includes(sprint))
+    .map((sprint) => ({
+      sprint,
+      problems: problemsBySprint[sprint].total,
+    }))
+
+  const enhance_sprints = sprints.map((sprint) => {
+    const { tbd_points = 1, to_val_points = 0, done_points = 0 } = sprint
+    const pseudo_done = (done_points || 0) + (to_val_points || 0)
+    const percentage = Math.floor((100 * pseudo_done) / (tbd_points || 1))
+
+    return { ...sprint, pseudo_done, percentage }
+  })
+
+  const sprints_graph = enhance_sprints
+    .filter((sprint) => !skip_sprints.includes(sprint.sprint))
+    .map((sprint) => ({ sprint: sprint.sprint, percentage: sprint.percentage }))
+    .reverse()
+
   return (
     <>
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
         <Heading fontWeight="regular">Sprints</Heading>
+        <Flex bg="white" boxShadow="lg" rounded="md">
+          {!isFetchingLabels && <ProblemGraph problems={problems} />}
+        </Flex>
+        <Flex bg="white" boxShadow="lg" rounded="md">
+          {!isFetchingSprint && <SprintGraph sprints={sprints_graph} />}
+        </Flex>
         <Table background="white" size="sm" boxShadow="md" rounded="md">
           <Thead>
             <Tr background="teal.600">
@@ -77,54 +107,134 @@ function Home() {
             </Tr>
           </Thead>
           <Tbody>
-            {sprints.map((sprint) => {
-              const {
-                tbd_points = 1,
-                to_val_points = 0,
-                done_points = 0,
-              } = sprint
-              const pseudo_done = (done_points || 0) + (to_val_points || 0)
-              const percentage =
-                Math.floor((100 * pseudo_done) / (tbd_points || 1)) - 100
-
-              return (
-                <Tr key={sprint.id}>
-                  <Td>{sprint.id}</Td>
-                  <Td display={{ base: 'none', md: 'table-cell' }}>
-                    {tbd_points?.toFixed(1)}
-                  </Td>
-                  <Td>
-                    <Badge
-                      colorScheme={
-                        percentage < 0
-                          ? percentage < -9
-                            ? 'red'
-                            : 'orange'
-                          : 'green'
-                      }
-                      rounded="lg"
-                      px="3"
-                    >
-                      {pseudo_done} / {tbd_points}
-                    </Badge>
-                  </Td>
-                  <Td display={{ base: 'none', md: 'table-cell' }}>
-                    {problemsBySprint[sprint.sprint]?.total}
-                  </Td>
-                  <Td>
-                    <Link
-                      to="/$sprintId/daily"
-                      params={{ sprintId: sprint.id }}
-                    >
-                      <Button size={{ base: 'xs', md: 'sm' }}>view</Button>
-                    </Link>
-                  </Td>
-                </Tr>
-              )
-            })}
+            {enhance_sprints.map((sprint) => (
+              <Tr key={sprint.id}>
+                <Td>{sprint.id}</Td>
+                <Td display={{ base: 'none', md: 'table-cell' }}>
+                  {sprint.tbd_points?.toFixed(1)}
+                </Td>
+                <Td>
+                  <Badge
+                    colorScheme={
+                      sprint.percentage < 99
+                        ? sprint.percentage < 90
+                          ? 'red'
+                          : 'orange'
+                        : 'green'
+                    }
+                    rounded="lg"
+                    px="2"
+                  >
+                    {sprint.pseudo_done} / {sprint.tbd_points}
+                  </Badge>
+                </Td>
+                <Td display={{ base: 'none', md: 'table-cell' }}>
+                  {problemsBySprint[sprint.sprint]?.total}
+                </Td>
+                <Td>
+                  <Link to="/$sprintId/daily" params={{ sprintId: sprint.id }}>
+                    <Button size={{ base: 'xs', md: 'sm' }}>view</Button>
+                  </Link>
+                </Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </Container>
     </>
+  )
+}
+
+type SprintDatum = { sprint: string; percentage: number }
+function SprintGraph({ sprints }: { sprints: SprintDatum[] }) {
+  if (sprints.length < 1) return null
+
+  type Series = {
+    label: string
+    data: SprintDatum[]
+  }
+
+  const data: Series[] = [
+    {
+      label: 'Completion Percentage',
+      data: sprints,
+    },
+    {
+      label: '100%',
+      data: sprints.map((p) => ({ sprint: p.sprint, percentage: 100 })),
+    },
+    {
+      label: '85%',
+      data: sprints.map((p) => ({ sprint: p.sprint, percentage: 90 })),
+    },
+  ]
+
+  const primaryAxis: AxisOptions<SprintDatum> = {
+    getValue: (datum) => datum.sprint,
+  }
+
+  const secondaryAxes: AxisOptions<SprintDatum>[] = [
+    {
+      getValue: (datum) => datum.percentage,
+      elementType: 'line',
+    },
+  ]
+
+  return (
+    <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
+      <Chart
+        options={{
+          data,
+          primaryAxis,
+          secondaryAxes,
+        }}
+      />
+    </Flex>
+  )
+}
+
+type MyDatum = { sprint: string; problems: number }
+function ProblemGraph({ problems }: { problems: MyDatum[] }) {
+  if (problems.length < 1) return null
+
+  type Series = {
+    label: string
+    data: MyDatum[]
+  }
+
+  const data: Series[] = [
+    {
+      label: 'Problems',
+      data: problems,
+    },
+    {
+      label: 'standard',
+      data: problems.map((p) => {
+        return { sprint: p.sprint, problems: 2 }
+      }),
+    },
+  ]
+
+  const primaryAxis: AxisOptions<MyDatum> = {
+    getValue: (datum) => datum.sprint,
+  }
+
+  const secondaryAxes: AxisOptions<MyDatum>[] = [
+    {
+      getValue: (datum) => datum.problems,
+      elementType: 'line',
+    },
+  ]
+
+  return (
+    <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
+      <Chart
+        options={{
+          data,
+          primaryAxis,
+          secondaryAxes,
+        }}
+      />
+    </Flex>
   )
 }
