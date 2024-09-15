@@ -1,13 +1,27 @@
-import { Container, Flex, Button } from "@chakra-ui/react";
+import { pb } from '@/services/pb'
+import { Container, Flex, Button, Spacer } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
 
+import { Login } from '@/components/Login'
+import { Logout } from './Logout'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  if (!pb.authStore.isValid) {
+    return <Login />
+  }
 
   return (
     <Flex flexDir="column" h="100dvh" background="whitesmoke" overflowY="auto">
       <Navbar />
-      <Container gap="3" display="flex" maxW="container.2xl" flexDir="column" flex="1" overflowY="auto" p="3">
+      <Container
+        gap="3"
+        display="flex"
+        maxW="container.2xl"
+        flexDir="column"
+        flex="1"
+        overflowY="auto"
+        p="3"
+      >
         {children}
       </Container>
     </Flex>
@@ -20,8 +34,18 @@ function Navbar() {
       <Container maxW="container.2xl">
         <Flex>
           <Link to="/">
-            <Button size="sm" variant="ghost" fontWeight="bold" letterSpacing="2px" fontSize="lg">Agile</Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              fontWeight="bold"
+              letterSpacing="2px"
+              fontSize="lg"
+            >
+              Agile
+            </Button>
           </Link>
+          <Spacer />
+          <Logout />
         </Flex>
       </Container>
     </Flex>
