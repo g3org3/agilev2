@@ -94,14 +94,25 @@ function Daily() {
   return (
     <>
       <Heading fontWeight="regular">
-        <Flex gap="2" flexDir={{ base: "column", md: "row" }}>
-          {sprintId} - {sprint?.done_points}/{sprint?.tbd_points} points
+        <Flex
+          gap="2"
+          flexDir={{ base: "column", md: "row" }}
+          bg="white"
+          alignItems={{ base: 'unset', md: "center" }}
+          boxShadow="md"
+          rounded="lg"
+          p="3">
+          <Flex alignItems="center" gap="2">{sprintId} | <small>{sprint?.done_points} / {sprint?.tbd_points} points</small></Flex>
           <Link
             to="/$sprintId/daily"
             params={{ sprintId }}
             search={(params) => ({ ...params, viewSummary: !viewSummary })}
           >
-            <Button isActive={!!viewSummary} variant="outline" size="sm" colorScheme="green">
+            <Button
+              w={{ base: '100%', md: 'unset' }}
+              isActive={!!viewSummary}
+              variant="ghost"
+              colorScheme="green">
               toggle summary
             </Button>
           </Link>
@@ -114,7 +125,7 @@ function Daily() {
             params={{ sprintId }}
             search={(params) => ({ ...params, view: view === 'table' ? 'trello' : 'table' })}
           >
-            <Button variant="outline" size="sm" colorScheme="purple">
+            <Button w={{ base: '100%', md: 'unset' }} variant="ghost" colorScheme="blue">
               change to {view === 'table' ? 'trello' : 'table'}
             </Button>
           </Link>
@@ -122,7 +133,7 @@ function Daily() {
       </Heading>
       <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
         {viewSummary ? <DaySummary tickets={tickets_or_cache} /> : null}
-        <Flex flexDir="column" flex="1" overflowY="auto" paddingBottom="4" position="relative">
+        <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
           {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.7"></Flex>}
           {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
           {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
@@ -134,7 +145,7 @@ function Daily() {
 
 function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], old_tickets: TicketsResponse[] }) {
   return (
-    <Flex gap="4" flex="1" py="5" overflow="auto">
+    <Flex gap="4" flex="1" py="5" overflow="auto" minW="1200px">
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='To Develop' label='Daily' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Progress' label='Doing' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Review' label='Code Review' />
@@ -434,7 +445,7 @@ function DateBtns() {
 
   return (
     <>
-      <Select maxW={{ base: '100%', md: '200px' }} value={selectedDate || ""} onChange={onSelectDev}>
+      <Select maxW={{ base: '100%', md: '200px' }} value={selectedDate || ""} onChange={onSelectDev} outline="2px solid green">
         <option value="">-</option>
         {dates.map(date => (
           <option key={date.id} value={date.date}>{prettyISODate(date.date)}</option>
