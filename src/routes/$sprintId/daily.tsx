@@ -458,14 +458,14 @@ function DateBtns() {
 
 function DevsBtns() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view } = Route.useSearch()
+  const { selectedDev } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: devs = [] } = useQuery({
     queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
     queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
       filter: `sprint = '${sprintId}'`,
-      sort: 'name',
+      sort: 'dev',
     }),
   })
 
@@ -473,7 +473,7 @@ function DevsBtns() {
     navigate({
       to: "/$sprintId/daily",
       params: { sprintId },
-      search: { selectedDev: event.target.value, view, selectedDate },
+      search: (params) => ({ ...params, selectedDev: event.target.value }),
     })
   }
 
