@@ -9,7 +9,7 @@ import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 
-const filterBySchema = z.enum(['problems', '']).nullish()
+const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
 export const Route = createFileRoute('/$sprintId/daily')({
   component: Daily,
@@ -88,6 +88,16 @@ function Daily() {
       const labels = ticket.labels?.join(' ') || ''
       const problems = ['ko', 'return', 'wrong', 'estimated', 'missed']
       return problems.filter(problem => labels.includes(problem)).length > 0
+    })
+  }
+  
+  if (filterBy === 'problem-solving') {
+    tickets_or_cache = tickets_or_cache.filter((ticket) => {
+      const warning = ['Done', 'In Test'].includes(ticket.status)
+            ? null
+            : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
+
+      return !!warning;
     })
   }
 
@@ -407,6 +417,7 @@ function Filter() {
       <Select maxW={{ base: '100%', md: '200px' }} value={filterBy || ""} onChange={onSelectDev}>
         <option value="">filter by</option>
         <option>problems</option>
+        <option>problem-solving</option>
       </Select>
     </>
   )
