@@ -75,12 +75,54 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({
-  IndexRoute,
-  OverviewRoute,
-  RoadmapRoute,
-  SprintIdDailyRoute,
-})
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/overview': typeof OverviewRoute
+  '/roadmap': typeof RoadmapRoute
+  '/$sprintId/daily': typeof SprintIdDailyRoute
+}
+
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/overview': typeof OverviewRoute
+  '/roadmap': typeof RoadmapRoute
+  '/$sprintId/daily': typeof SprintIdDailyRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/overview': typeof OverviewRoute
+  '/roadmap': typeof RoadmapRoute
+  '/$sprintId/daily': typeof SprintIdDailyRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/overview' | '/roadmap' | '/$sprintId/daily'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/overview' | '/roadmap' | '/$sprintId/daily'
+  id: '__root__' | '/' | '/overview' | '/roadmap' | '/$sprintId/daily'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  OverviewRoute: typeof OverviewRoute
+  RoadmapRoute: typeof RoadmapRoute
+  SprintIdDailyRoute: typeof SprintIdDailyRoute
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  OverviewRoute: OverviewRoute,
+  RoadmapRoute: RoadmapRoute,
+  SprintIdDailyRoute: SprintIdDailyRoute,
+}
+
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* prettier-ignore-end */
 
