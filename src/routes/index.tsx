@@ -86,11 +86,13 @@ function Home() {
     <>
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
         <Heading fontWeight="regular">Sprints</Heading>
-        <Flex bg="white" boxShadow="lg" rounded="md">
-          {!isFetchingLabels && <ProblemGraph problems={problems} />}
-        </Flex>
-        <Flex bg="white" boxShadow="lg" rounded="md">
-          {!isFetchingSprint && <SprintGraph sprints={sprints_graph} />}
+        <Flex gap="4" flexDirection={{base: 'column', md: 'row'}}>
+          <Flex bg="white" boxShadow="lg" rounded="md" flex="1">
+            {!isFetchingLabels && <ProblemGraph problems={problems} />}
+          </Flex>
+          <Flex bg="white" boxShadow="lg" rounded="md" flex="1">
+            {!isFetchingSprint && <SprintGraph sprints={sprints_graph} />}
+          </Flex>
         </Flex>
         <Table background="white" size="sm" boxShadow="md" rounded="md">
           <Thead>
@@ -181,14 +183,17 @@ function SprintGraph({ sprints }: { sprints: SprintDatum[] }) {
   ]
 
   return (
-    <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
-      <Chart
-        options={{
-          data,
-          primaryAxis,
-          secondaryAxes,
-        }}
-      />
+    <Flex flexDir="column" flex="1">
+      <center>Sprint Completion Rate</center>
+      <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
+        <Chart
+          options={{
+            data,
+            primaryAxis,
+            secondaryAxes,
+          }}
+        />
+      </Flex>
     </Flex>
   )
 }
@@ -207,12 +212,6 @@ function ProblemGraph({ problems }: { problems: MyDatum[] }) {
       label: 'Problems',
       data: problems,
     },
-    {
-      label: 'standard',
-      data: problems.map((p) => {
-        return { sprint: p.sprint, problems: 2 }
-      }),
-    },
   ]
 
   const primaryAxis: AxisOptions<MyDatum> = {
@@ -222,19 +221,22 @@ function ProblemGraph({ problems }: { problems: MyDatum[] }) {
   const secondaryAxes: AxisOptions<MyDatum>[] = [
     {
       getValue: (datum) => datum.problems,
-      elementType: 'line',
+      elementType: 'bar',
     },
   ]
 
   return (
-    <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
-      <Chart
-        options={{
-          data,
-          primaryAxis,
-          secondaryAxes,
-        }}
-      />
+    <Flex flexDir="column" flex="1">
+      <center>Problems</center>
+      <Flex display="inline-block" h={{ base: '200px', md: '300px' }} w="100%">
+        <Chart
+          options={{
+            data,
+            primaryAxis,
+            secondaryAxes,
+          }}
+        />
+      </Flex>
     </Flex>
   )
 }
