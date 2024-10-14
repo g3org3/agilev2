@@ -8,6 +8,7 @@ import { DateTime } from 'luxon'
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
+import DepGraph from '@/components/DepGraph'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -19,12 +20,13 @@ export const Route = createFileRoute('/$sprintId/daily')({
     view: z.enum(['', 'table', 'trello']).nullish(),
     filterBy: filterBySchema,
     viewSummary: z.boolean().nullish(),
+    depGraph: z.string().nullish(),
   })
 })
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary } = Route.useSearch()
+  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary, depGraph } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -83,6 +85,7 @@ function Daily() {
   })
 
   let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
+  let full_tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
   if (filterBy === 'problems') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
       const labels = ticket.labels?.join(' ') || ''
@@ -90,12 +93,12 @@ function Daily() {
       return problems.filter(problem => labels.includes(problem)).length > 0
     })
   }
-  
+
   if (filterBy === 'problem-solving') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
       const warning = ['Done', 'In Test'].includes(ticket.status)
-            ? null
-            : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
+        ? null
+        : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
 
       return !!warning;
     })
@@ -141,14 +144,14 @@ function Daily() {
           </Link>
         </Flex>
       </Heading>
-      <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
+      {depGraph ? <DepGraph selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
         {viewSummary ? <DaySummary tickets={tickets_or_cache} /> : null}
         <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
           {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.7"></Flex>}
           {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
           {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
         </Flex>
-      </Flex>
+      </Flex>}
     </>
   )
 }
@@ -218,6 +221,8 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
 }
 
 function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<string[], string[]>[], old_tickets: TicketsResponse[] }) {
+  const { sprintId } = Route.useParams()
+
   return (
     <Table size="sm" boxShadow="md" background="white" rounded="lg">
       <Thead>
@@ -270,6 +275,18 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
                 >
                   {ticket.epic_name}
                 </ChakraLink>
+                {ticket.epic_name && <Link
+                  to="/$sprintId/daily"
+                  params={{ sprintId }}
+                  search={(params) => ({ ...params, depGraph: ticket.epic_name })}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                  >
+                    dp
+                  </Button>
+                </Link>}
               </Td>
               <Td display={{ base: 'none', md: 'table-cell' }}>
                 <Flex gap="2">
