@@ -144,7 +144,7 @@ function Daily() {
           </Link>
         </Flex>
       </Heading>
-      {depGraph ? <DepGraph selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
+      {depGraph ? <DepGraph isLoading={isFetchingTickets || isFetchingOldTickets} selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
         {viewSummary ? <DaySummary tickets={tickets_or_cache} /> : null}
         <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
           {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.7"></Flex>}

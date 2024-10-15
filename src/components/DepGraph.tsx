@@ -7,8 +7,10 @@ interface Props {
   tickets?: TicketsResponse[]
   track: string
   selectedDate?: string | null
+  isLoading?: boolean
 }
 
+// WARN: warning this code is sh**
 export default function DepGraph(props: Props) {
   const sgTickets =
     (props.tickets || []).filter((x) => x.epic_name == props.track) || []
@@ -43,7 +45,7 @@ export default function DepGraph(props: Props) {
       }
     })
 
-    sgTickets.forEach((x, i) => {
+    sgTickets.forEach((x) => {
       if (x.parents instanceof Array && !!x.parents?.length) {
         for (let p of x.parents) {
           if (roots[p]) {
@@ -93,10 +95,14 @@ export default function DepGraph(props: Props) {
   // { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
   // const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
 
+  if (props.isLoading) {
+    return null
+  }
+
   return (
     <Flex h="800px" flexDir="column">
       <div className="font-bold text-3xl">{props.track}</div>
-      <Flow nodes={n} edges={edges} />
+      <Flow key={props.track + props.selectedDate} nodes={n} edges={edges} />
     </Flex>
   )
 }
