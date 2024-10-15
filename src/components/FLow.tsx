@@ -11,7 +11,7 @@ import ReactFlow, {
 } from 'reactflow'
 
 import 'reactflow/dist/style.css'
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 
 // const initialNodes = [
 //   { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
@@ -63,7 +63,9 @@ const nodeTypes = {
 }
 
 function Flow(props: { nodes: any[]; edges: any[] }) {
+  // @ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(props.nodes)
+  // @ts-ignore
   const [edges, setEdges, onEdgesChange] = useEdgesState(props.edges)
 
   // const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);

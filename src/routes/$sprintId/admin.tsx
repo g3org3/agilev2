@@ -1,7 +1,7 @@
 import { Button, Flex, Input } from '@chakra-ui/react'
 import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState } from 'react'
 import { Collections, StaffingRecord } from '@/services/pocketbase-types'
 import { pb } from '@/services/pb'
 import { useMutation } from '@tanstack/react-query'
@@ -63,7 +63,7 @@ function Admin() {
   const [startAt, setStartAt] = useState<string>('')
   const [endAt, setEndAt] = useState<string>('')
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (staffing: StaffingRecord[]) => upsertStaffing({ sprint: sprintId, staffing }),
   })
 
@@ -101,20 +101,20 @@ function Admin() {
       <form onSubmit={onDevSubmit}>
         <Flex gap={2}>
           <Input
-            disabled={isLoading}
+            disabled={isPending}
             placeholder="dev's name"
             name="devs"
           />
-          <Button disabled={isLoading} type="submit">
+          <Button disabled={isPending} type="submit">
             create
           </Button>
         </Flex>
       </form>
       <form onSubmit={onDateSubmit}>
         <Flex gap={2}>
-          <Input w="300px" disabled={isLoading} className="dark:bg-slate-700 p-2" name="startAt" type="date" />
-          <Input w="300px" disabled={isLoading} className="dark:bg-slate-700 p-2" name="endAt" type="date" />
-          <Button disabled={isLoading} type="submit">
+          <Input w="300px" disabled={isPending} className="dark:bg-slate-700 p-2" name="startAt" type="date" />
+          <Input w="300px" disabled={isPending} className="dark:bg-slate-700 p-2" name="endAt" type="date" />
+          <Button disabled={isPending} type="submit">
             update dates
           </Button>
         </Flex>
@@ -144,10 +144,10 @@ function Admin() {
         ))}
       </Flex>
       <Button
-        disabled={isLoading || !devs || !startAt || !endAt}
+        disabled={isPending || !devs || !startAt || !endAt}
         onClick={onCreateStaffing}
       >
-        {isLoading ? 'loading...' : 'create staffing'}
+        {isPending ? 'loading...' : 'create staffing'}
       </Button>
     </Flex>
   )
