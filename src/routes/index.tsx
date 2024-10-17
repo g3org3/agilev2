@@ -60,7 +60,7 @@ function Home() {
     return _bySprint
   }, [sprintlabels])
 
-  const skip_sprints = ['Sprint 110', 'Sprint 111', 'Sprint 128', 'Datafeed - Sprint 1']
+  const skip_sprints = ['Sprint 110', 'Sprint 111', 'Sprint 129', 'Datafeed - Sprint 1']
 
   const problems = Object.keys(problemsBySprint)
     .filter((sprint) => !skip_sprints.includes(sprint))
