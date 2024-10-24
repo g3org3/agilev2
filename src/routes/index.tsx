@@ -60,10 +60,17 @@ function Home() {
     return _bySprint
   }, [sprintlabels])
 
-  const skip_sprints = ['Sprint 110', 'Sprint 111', 'Sprint 129', 'Datafeed - Sprint 1', 'Datafeed - Sprint 2']
+  const skipped_sprints = [
+    'Sprint 110',
+    'Sprint 111',
+    'Sprint 130',
+    'Datafeed - Sprint 1',
+    'Datafeed - Sprint 2',
+    'Datafeed - Sprint 3',
+  ]
 
   const problems = Object.keys(problemsBySprint)
-    .filter((sprint) => !skip_sprints.includes(sprint))
+    .filter((sprint) => !skipped_sprints.includes(sprint))
     .map((sprint) => ({
       sprint,
       problems: problemsBySprint[sprint].total,
@@ -78,7 +85,7 @@ function Home() {
   })
 
   const sprints_graph = enhance_sprints
-    .filter((sprint) => !skip_sprints.includes(sprint.sprint))
+    .filter((sprint) => !skipped_sprints.includes(sprint.sprint))
     .map((sprint) => ({ sprint: sprint.sprint, percentage: sprint.percentage }))
     .reverse()
 
@@ -86,7 +93,7 @@ function Home() {
     <>
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
         <Heading fontWeight="regular">Sprints</Heading>
-        <Flex gap="4" flexDirection={{base: 'column', md: 'row'}}>
+        <Flex gap="4" flexDirection={{ base: 'column', md: 'row' }}>
           <Flex bg="white" boxShadow="lg" rounded="md" flex="1">
             {!isFetchingLabels && <ProblemGraph problems={problems} />}
           </Flex>
