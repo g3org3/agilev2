@@ -63,10 +63,11 @@ function Home() {
   const skipped_sprints = [
     'Sprint 110',
     'Sprint 111',
-    'Sprint 130',
+    'Sprint 131',
     'Datafeed - Sprint 1',
     'Datafeed - Sprint 2',
     'Datafeed - Sprint 3',
+    'Datafeed - Sprint 4',
   ]
 
   const problems = Object.keys(problemsBySprint)
