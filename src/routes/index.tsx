@@ -63,7 +63,7 @@ function Home() {
   const skipped_sprints = [
     'Sprint 110',
     'Sprint 111',
-    'Sprint 134',
+    'Sprint 135',
     'Datafeed - Sprint 1',
     'Datafeed - Sprint 2',
     'Datafeed - Sprint 3',
@@ -71,10 +71,12 @@ function Home() {
     'Datafeed - Sprint 5',
     'Datafeed - Sprint 6',
     'Datafeed - Sprint 7',
+    'Datafeed - Sprint 134',
+    'Datafeed - Sprint 135',
   ]
 
   const problems = Object.keys(problemsBySprint)
-    .filter((sprint) => !skipped_sprints.includes(sprint))
+    .filter((sprint) => !skipped_sprints.includes(sprint) && sprint.includes('atafeed -'))
     .map((sprint) => ({
       sprint,
       problems: problemsBySprint[sprint].total,
