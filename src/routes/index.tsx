@@ -11,10 +11,12 @@ import {
   Badge,
   Container,
   Flex,
+  Select,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { AxisOptions, Chart } from 'react-charts'
+import z from 'zod'
 
 import { pb } from '@/services/pb'
 import {
@@ -25,10 +27,15 @@ import {
 
 export const Route = createFileRoute('/')({
   component: Home,
+  validateSearch: z.object({
+    project: z.enum(['compass', 'datafeed', 'all']).nullish(),
+  }),
 })
 
 function Home() {
-  const { data: sprints = [], isFetching: isFetchingSprint } = useQuery({
+  const { project = 'compass' } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const { data: rawsprints = [], isFetching: isFetchingSprint } = useQuery({
     queryKey: [Collections.SprintsView, 'get-all', 'sort-sprint-desc'],
     queryFn: () =>
       pb
@@ -48,6 +55,17 @@ function Home() {
         >(),
   })
 
+  // filter sprints
+  let sprints = rawsprints
+
+  if (project === 'datafeed') {
+    sprints = sprints.filter((sprint) => sprint.sprint.includes('Datafeed'))
+  }
+
+  if (project === 'compass') {
+    sprints = sprints.filter((sprint) => !sprint.sprint.includes('Datafeed'))
+  }
+
   const problemsBySprint = useMemo(() => {
     const _bySprint: Record<
       string,
@@ -63,20 +81,21 @@ function Home() {
   const skipped_sprints = [
     'Sprint 110',
     'Sprint 111',
-    'Sprint 135',
-    'Datafeed - Sprint 1',
-    'Datafeed - Sprint 2',
-    'Datafeed - Sprint 3',
-    'Datafeed - Sprint 4',
-    'Datafeed - Sprint 5',
-    'Datafeed - Sprint 6',
-    'Datafeed - Sprint 7',
-    'Datafeed - Sprint 134',
-    'Datafeed - Sprint 135',
+    'Sprint 136',
+    'Datafeed - Sprint 136',
   ]
 
   const problems = Object.keys(problemsBySprint)
-    .filter((sprint) => !skipped_sprints.includes(sprint) && sprint.includes('atafeed -'))
+    .filter((sprint) => {
+      if (skipped_sprints.includes(sprint)) return false
+      if (project === 'datafeed') {
+        return sprint.includes('Datafeed')
+      }
+      if (project === 'compass') {
+        return !sprint.includes('Datafeed')
+      }
+      return true
+    })
     .map((sprint) => ({
       sprint,
       problems: problemsBySprint[sprint].total,
@@ -107,6 +126,21 @@ function Home() {
             {!isFetchingSprint && <SprintGraph sprints={sprints_graph} />}
           </Flex>
         </Flex>
+        <Select
+          value={project || ''}
+          onChange={(e) =>
+            navigate({
+              to: '/',
+              search: {
+                project: e.target.value as never,
+              },
+            })
+          }
+        >
+          <option value="">all</option>
+          <option value="compass">Compass</option>
+          <option value="datafeed">Data Feed</option>
+        </Select>
         <Table background="white" size="sm" boxShadow="md" rounded="md">
           <Thead>
             <Tr background="teal.600">
