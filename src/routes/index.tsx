@@ -83,6 +83,10 @@ function Home() {
     'Sprint 111',
     'Sprint 138',
     'Datafeed - Sprint 138',
+    'Datafeed - Sprint 1',
+    'Datafeed - Sprint 2',
+    'Datafeed - Sprint 3',
+    'Datafeed - Sprint 4',
   ]
 
   const problems = Object.keys(problemsBySprint)
