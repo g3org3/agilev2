@@ -59,7 +59,16 @@ function Home() {
   let sprints = rawsprints
 
   if (project === 'datafeed') {
-    sprints = sprints.filter((sprint) => sprint.sprint.includes('Datafeed'))
+    sprints = sprints.filter(
+      (sprint) =>
+        sprint.sprint.includes('Datafeed') &&
+        ![
+          'Datafeed - Sprint 1',
+          'Datafeed - Sprint 2',
+          'Datafeed - Sprint 3',
+          'Datafeed - Sprint 4',
+        ].includes(sprint.sprint)
+    )
   }
 
   if (project === 'compass') {
