@@ -88,70 +88,13 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/overview': typeof OverviewRoute
-  '/roadmap': typeof RoadmapRoute
-  '/$sprintId/admin': typeof SprintIdAdminRoute
-  '/$sprintId/daily': typeof SprintIdDailyRoute
-}
-
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/overview': typeof OverviewRoute
-  '/roadmap': typeof RoadmapRoute
-  '/$sprintId/admin': typeof SprintIdAdminRoute
-  '/$sprintId/daily': typeof SprintIdDailyRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/overview': typeof OverviewRoute
-  '/roadmap': typeof RoadmapRoute
-  '/$sprintId/admin': typeof SprintIdAdminRoute
-  '/$sprintId/daily': typeof SprintIdDailyRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/overview'
-    | '/roadmap'
-    | '/$sprintId/admin'
-    | '/$sprintId/daily'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/overview' | '/roadmap' | '/$sprintId/admin' | '/$sprintId/daily'
-  id:
-    | '__root__'
-    | '/'
-    | '/overview'
-    | '/roadmap'
-    | '/$sprintId/admin'
-    | '/$sprintId/daily'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  OverviewRoute: typeof OverviewRoute
-  RoadmapRoute: typeof RoadmapRoute
-  SprintIdAdminRoute: typeof SprintIdAdminRoute
-  SprintIdDailyRoute: typeof SprintIdDailyRoute
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  OverviewRoute: OverviewRoute,
-  RoadmapRoute: RoadmapRoute,
-  SprintIdAdminRoute: SprintIdAdminRoute,
-  SprintIdDailyRoute: SprintIdDailyRoute,
-}
-
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute.addChildren({
+  IndexRoute,
+  OverviewRoute,
+  RoadmapRoute,
+  SprintIdAdminRoute,
+  SprintIdDailyRoute,
+})
 
 /* prettier-ignore-end */
 
