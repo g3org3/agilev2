@@ -64,7 +64,7 @@ export function BDC(props: Props) {
       })
       total -= byDay[key]
     }
-    const lastDate = _data[_data.length - 1].date
+    const lastDate = _data[_data.length - 1]?.date
     const newLastDate = getNextDate(lastDate)
     if (lastDate && newLastDate) {
       _data.push({ date: newLastDate, points: 0 })
