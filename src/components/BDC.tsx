@@ -34,7 +34,9 @@ export function BDC(props: Props) {
     queryFn: () =>
       pb
         .collection(Collections.LatestSprintPointsView)
-        .getFullList<LatestSprintPointsViewResponse<number, number, number, number, number>>({
+        .getFullList<
+          LatestSprintPointsViewResponse<number, number, number, number, number>
+        >({
           filter: `sprint = '${props.sprintId}'`,
         }),
   })
@@ -62,7 +64,7 @@ export function BDC(props: Props) {
       })
       total -= byDay[key]
     }
-    const lastDate = _data.at(-1)?.date
+    const lastDate = _data[_data.length - 1].date
     const newLastDate = getNextDate(lastDate)
     if (lastDate && newLastDate) {
       _data.push({ date: newLastDate, points: 0 })
