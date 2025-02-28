@@ -39,25 +39,26 @@ export function BDC(props: Props) {
     return _by
   }, [staffing])
 
-  const d = useMemo(() => {
-    const data: MyDatum[] = []
+
+  const data: MyDatum[] = useMemo(() => {
+    const _data: MyDatum[] = []
     let total = props.tbd_points || 0
     const days = Object.keys(byDay)
     days.sort()
     for (const key of days) {
-      data.push({
+      _data.push({
         date: key,
         points: total,
       })
       total -= byDay[key]
     }
-    const lastDate = data.at(-1)?.date
+    const lastDate = _data.at(-1)?.date
     const newLastDate = getNextDate(lastDate)
     if (lastDate && newLastDate) {
-      data.push({ date: newLastDate, points: 0 })
+      _data.push({ date: newLastDate, points: 0 })
     }
 
-    return data
+    return _data
   }, [props.tbd_points, byDay])
 
   type Series = {
@@ -65,10 +66,10 @@ export function BDC(props: Props) {
     data: MyDatum[]
   }
 
-  const data: Series[] = [
+  const series: Series[] = [
     {
       label: 'Problems',
-      data: d,
+      data,
     },
   ]
 
@@ -83,6 +84,8 @@ export function BDC(props: Props) {
     },
   ]
 
+  if (!props.tbd_points) return
+
   return (
     <Flex flexDir="column" bg="white" boxShadow="md" rounded="md">
       <Text pl={5} fontSize="x-large">
@@ -91,7 +94,7 @@ export function BDC(props: Props) {
       <Flex display="inline-block" h={{ base: '200px', md: '400px' }} w="100%">
         <Chart
           options={{
-            data,
+            data: series,
             primaryAxis,
             secondaryAxes,
           }}
