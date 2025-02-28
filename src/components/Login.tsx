@@ -1,6 +1,6 @@
 import { pb } from '@/services/pb'
 import { Collections } from '@/services/pocketbase-types'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import { ClientResponseError } from 'pocketbase'
 
 export function Login() {
@@ -24,8 +24,20 @@ export function Login() {
   }
 
   return (
-    <Flex alignItems="center" justifyContent="center" paddingTop="7%">
-      <Button onClick={onLogin}>Login with Google</Button>
+    <Flex alignItems="center" flexDirection="column" paddingTop="7%" gap={3}>
+      <Flex
+        border="2px dotted black"
+        py={10}
+        px={20}
+        borderColor="gray.200"
+        flexDir="column"
+        gap={4}
+      >
+        <h1>
+          <Text fontSize="xx-large">Agile App</Text>
+        </h1>
+        <Button onClick={onLogin}>Login with Google</Button>
+      </Flex>
     </Flex>
   )
 }

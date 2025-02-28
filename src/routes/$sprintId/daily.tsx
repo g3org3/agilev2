@@ -9,6 +9,7 @@ import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 import DepGraph from '@/components/DepGraph'
+import { BDC } from '@/components/BDC'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -26,7 +27,7 @@ export const Route = createFileRoute('/$sprintId/daily')({
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary, depGraph } = Route.useSearch()
+  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary = true, depGraph } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -85,7 +86,7 @@ function Daily() {
   })
 
   let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
-  let full_tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
+  const full_tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
   if (filterBy === 'problems') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
       const labels = ticket.labels?.join(' ') || ''
@@ -115,7 +116,9 @@ function Daily() {
           boxShadow="md"
           rounded="lg"
           p="3">
-          <Flex alignItems="center" gap="2">{sprintId} | <small>{sprint?.done_points} / {sprint?.tbd_points} points</small></Flex>
+          <Flex alignItems="center" gap="2">
+            {sprintId} | <small>{sprint?.done_points} / {sprint?.tbd_points} points</small>
+          </Flex>
           <Link
             to="/$sprintId/daily"
             params={{ sprintId }}
@@ -145,7 +148,12 @@ function Daily() {
         </Flex>
       </Heading>
       {depGraph ? <DepGraph isLoading={isFetchingTickets || isFetchingOldTickets} selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
-        {viewSummary ? <DaySummary tickets={tickets_or_cache} /> : null}
+        {viewSummary ? (
+          <Flex flexDir="column" gap={4}>
+            <DaySummary tickets={tickets_or_cache} />
+            <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
+          </Flex>
+        ) : null}
         <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
           {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.7"></Flex>}
           {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
