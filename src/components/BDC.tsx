@@ -3,6 +3,7 @@ import { AxisOptions, Chart } from 'react-charts'
 
 import {
   Collections,
+  LatestSprintPointsViewResponse,
   StaffingResponse,
   TicketsResponse,
 } from '@/services/pocketbase-types'
@@ -20,12 +21,22 @@ interface Props {
 type MyDatum = { date: string; points: number }
 
 export function BDC(props: Props) {
-  const { data: staffing = [] } = useQuery({
+  const { data: staffing = [], isLoading } = useQuery({
     queryKey: [Collections.Staffing, props.sprintId],
     queryFn: () =>
       pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
         filter: `sprint = '${props.sprintId}'`,
       }),
+  })
+
+  const { data: last_sprint_points = [], isLoading: isLoading2 } = useQuery({
+    queryKey: [Collections.LatestSprintPointsView, props.sprintId],
+    queryFn: () =>
+      pb
+        .collection(Collections.LatestSprintPointsView)
+        .getFullList<LatestSprintPointsViewResponse<number, number, number, number, number>>({
+          filter: `sprint = '${props.sprintId}'`,
+        }),
   })
 
   const byDay = useMemo(() => {
@@ -39,9 +50,8 @@ export function BDC(props: Props) {
     return _by
   }, [staffing])
 
-
-  const data: MyDatum[] = useMemo(() => {
-    const _data: MyDatum[] = []
+  const data = useMemo(() => {
+    const _data = []
     let total = props.tbd_points || 0
     const days = Object.keys(byDay)
     days.sort()
@@ -58,8 +68,21 @@ export function BDC(props: Props) {
       _data.push({ date: newLastDate, points: 0 })
     }
 
-    return _data
+    return _data satisfies MyDatum[]
   }, [props.tbd_points, byDay])
+
+  const data2 = useMemo(() => {
+    const total = props.tbd_points || 0
+    const _data = []
+    for (const day of last_sprint_points) {
+      _data.push({
+        date: day.date,
+        points: total - (day.done_points || 0) - (day.to_val_points || 0),
+      })
+    }
+
+    return _data satisfies MyDatum[]
+  }, [last_sprint_points, props.tbd_points])
 
   type Series = {
     label: string
@@ -68,8 +91,12 @@ export function BDC(props: Props) {
 
   const series: Series[] = [
     {
-      label: 'Problems',
+      label: 'Ideal',
       data,
+    },
+    {
+      label: 'Real',
+      data: data2,
     },
   ]
 
@@ -84,7 +111,7 @@ export function BDC(props: Props) {
     },
   ]
 
-  if (!props.tbd_points) return
+  if (!props.tbd_points || isLoading || isLoading2) return
 
   return (
     <Flex flexDir="column" bg="white" boxShadow="md" rounded="md">
