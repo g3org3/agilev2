@@ -73,6 +73,7 @@ export type InvestigationsRecord = {
 	points?: number
 	status: string
 	summary: string
+	sprint: string
 }
 
 export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Tvalidation_returns = unknown> = {

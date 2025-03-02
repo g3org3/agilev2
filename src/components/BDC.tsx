@@ -79,7 +79,7 @@ export function BDC(props: Props) {
     for (const day of last_sprint_points) {
       _data.push({
         date: day.date,
-        points: total - (day.done_points || 0) - (day.to_val_points || 0),
+        points: total - (day.done_points || 0) // - (day.to_val_points || 0),
       })
     }
 

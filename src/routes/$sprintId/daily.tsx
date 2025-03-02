@@ -10,6 +10,7 @@ import { pb } from '@/services/pb'
 import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
 import DepGraph from '@/components/DepGraph'
 import { BDC } from '@/components/BDC'
+import Investigations from '@/components/Investigations'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -21,13 +22,14 @@ export const Route = createFileRoute('/$sprintId/daily')({
     view: z.enum(['', 'table', 'trello']).nullish(),
     filterBy: filterBySchema,
     viewSummary: z.boolean().nullish(),
+    viewInvestigations: z.boolean().nullish(),
     depGraph: z.string().nullish(),
   })
 })
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary = true, depGraph } = Route.useSearch()
+  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary = true, depGraph, viewInvestigations } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -127,9 +129,24 @@ function Daily() {
             <Button
               w={{ base: '100%', md: 'unset' }}
               isActive={!!viewSummary}
-              variant="ghost"
+              variant="outline"
+              size="sm"
               colorScheme="green">
               toggle summary
+            </Button>
+          </Link>
+          <Link
+            to="/$sprintId/daily"
+            params={{ sprintId }}
+            search={(params) => ({ ...params, viewInvestigations: !viewInvestigations })}
+          >
+            <Button
+              w={{ base: '100%', md: 'unset' }}
+              isActive={!!viewInvestigations}
+              size="sm"
+              variant="outline"
+              colorScheme="purple">
+              toggle investigations
             </Button>
           </Link>
           <Spacer />
@@ -147,6 +164,7 @@ function Daily() {
           </Link>
         </Flex>
       </Heading>
+      {viewInvestigations && selectedDate && <Investigations sprintId={sprintId} selectedDate={selectedDate} selectedDev={selectedDev} />}
       {depGraph ? <DepGraph isLoading={isFetchingTickets || isFetchingOldTickets} selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
         {viewSummary ? (
           <Flex flexDir="column" gap={4}>
