@@ -7,6 +7,7 @@ import type { RecordService } from 'pocketbase'
 
 export enum Collections {
 	Epics = "epics",
+	Investigations = "investigations",
 	LatestSprintPointsView = "latest_sprint_points_view",
 	LatestSprintSnapshotDateView = "latest_sprint_snapshot_date_view",
 	Problems = "problems",
@@ -56,6 +57,22 @@ export type EpicsRecord = {
 	estimated_nfr?: number
 	name?: string
 	status?: string
+}
+
+export enum InvestigationsInvStatusOptions {
+	"ON_HOLD" = "ON_HOLD",
+	"ON_GOING" = "ON_GOING",
+	"DONE" = "DONE",
+}
+export type InvestigationsRecord = {
+	date: string
+	inv_status: InvestigationsInvStatusOptions
+	key: string
+	name: string
+	owner?: string
+	points?: number
+	status: string
+	summary: string
 }
 
 export type LatestSprintPointsViewRecord<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Tvalidation_returns = unknown> = {
@@ -174,6 +191,7 @@ export type UsersRecord = {
 
 // Response types include system fields and match responses from the PocketBase API
 export type EpicsResponse<Texpand = unknown> = Required<EpicsRecord> & BaseSystemFields<Texpand>
+export type InvestigationsResponse<Texpand = unknown> = Required<InvestigationsRecord> & BaseSystemFields<Texpand>
 export type LatestSprintPointsViewResponse<Tcr_points = unknown, Tdone_points = unknown, Ttbd_points = unknown, Tto_val_points = unknown, Ttotal_points = unknown, Tvalidation_returns = unknown, Texpand = unknown> = Required<LatestSprintPointsViewRecord<Tcr_points, Tdone_points, Ttbd_points, Tto_val_points, Ttotal_points, Tvalidation_returns>> & BaseSystemFields<Texpand>
 export type LatestSprintSnapshotDateViewResponse<Tdate = unknown, Texpand = unknown> = Required<LatestSprintSnapshotDateViewRecord<Tdate>> & BaseSystemFields<Texpand>
 export type ProblemsResponse<Texpand = unknown> = Required<ProblemsRecord> & BaseSystemFields<Texpand>
@@ -192,6 +210,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 
 export type CollectionRecords = {
 	epics: EpicsRecord
+	investigations: InvestigationsRecord
 	latest_sprint_points_view: LatestSprintPointsViewRecord
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewRecord
 	problems: ProblemsRecord
@@ -209,6 +228,7 @@ export type CollectionRecords = {
 
 export type CollectionResponses = {
 	epics: EpicsResponse
+	investigations: InvestigationsResponse
 	latest_sprint_points_view: LatestSprintPointsViewResponse
 	latest_sprint_snapshot_date_view: LatestSprintSnapshotDateViewResponse
 	problems: ProblemsResponse
@@ -229,6 +249,7 @@ export type CollectionResponses = {
 
 export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'epics'): RecordService<EpicsResponse>
+	collection(idOrName: 'investigations'): RecordService<InvestigationsResponse>
 	collection(idOrName: 'latest_sprint_points_view'): RecordService<LatestSprintPointsViewResponse>
 	collection(idOrName: 'latest_sprint_snapshot_date_view'): RecordService<LatestSprintSnapshotDateViewResponse>
 	collection(idOrName: 'problems'): RecordService<ProblemsResponse>

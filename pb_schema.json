@@ -225,6 +225,136 @@
     "options": {}
   },
   {
+    "id": "7y27i2ac8423ieh",
+    "name": "investigations",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "xynwaidf",
+        "name": "key",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "vcp65fyt",
+        "name": "owner",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "crmrkibk",
+        "name": "date",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "vp5nytfe",
+        "name": "status",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "bqs4uxgq",
+        "name": "points",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "h6dundsi",
+        "name": "summary",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "vxyb9qjc",
+        "name": "name",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "lqiqviop",
+        "name": "inv_status",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "ON_HOLD",
+            "ON_GOING",
+            "DONE"
+          ]
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
     "id": "ftxg8ur5dr9rwd2",
     "name": "problems",
     "type": "base",
@@ -873,7 +1003,7 @@
     "schema": [
       {
         "system": false,
-        "id": "wqgnqdd5",
+        "id": "htn7mdpm",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -887,7 +1017,7 @@
       },
       {
         "system": false,
-        "id": "rgh2vln2",
+        "id": "f7btfzf0",
         "name": "date",
         "type": "text",
         "required": false,
@@ -901,7 +1031,7 @@
       },
       {
         "system": false,
-        "id": "fteocukl",
+        "id": "ja0ekdrw",
         "name": "tbd_points",
         "type": "json",
         "required": false,
@@ -913,7 +1043,7 @@
       },
       {
         "system": false,
-        "id": "shnhewrn",
+        "id": "0wuig4xp",
         "name": "total_points",
         "type": "json",
         "required": false,
@@ -925,7 +1055,7 @@
       },
       {
         "system": false,
-        "id": "bxys1pzx",
+        "id": "ojbilw9y",
         "name": "cr_points",
         "type": "json",
         "required": false,
@@ -937,7 +1067,7 @@
       },
       {
         "system": false,
-        "id": "mflfyope",
+        "id": "rmfkgssl",
         "name": "to_val_points",
         "type": "json",
         "required": false,
@@ -949,7 +1079,7 @@
       },
       {
         "system": false,
-        "id": "eaqr1wmc",
+        "id": "uwbtvr5k",
         "name": "done_points",
         "type": "json",
         "required": false,
@@ -961,7 +1091,7 @@
       },
       {
         "system": false,
-        "id": "2gj8imgl",
+        "id": "7pgc8cix",
         "name": "validation_returns",
         "type": "json",
         "required": false,
@@ -973,8 +1103,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -990,7 +1120,7 @@
     "schema": [
       {
         "system": false,
-        "id": "8jjf5ar6",
+        "id": "gplf05gz",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1004,7 +1134,7 @@
       },
       {
         "system": false,
-        "id": "nayqmezf",
+        "id": "itpe8dpn",
         "name": "date",
         "type": "json",
         "required": false,
@@ -1016,8 +1146,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -1033,7 +1163,7 @@
     "schema": [
       {
         "system": false,
-        "id": "lvo9mx0p",
+        "id": "043fci4d",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1047,7 +1177,7 @@
       },
       {
         "system": false,
-        "id": "u1qqcthe",
+        "id": "t9vlwmg0",
         "name": "utc_date",
         "type": "date",
         "required": false,
@@ -1060,7 +1190,7 @@
       },
       {
         "system": false,
-        "id": "7xr3t8is",
+        "id": "hactzviw",
         "name": "date",
         "type": "text",
         "required": false,
@@ -1074,8 +1204,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -1091,7 +1221,7 @@
     "schema": [
       {
         "system": false,
-        "id": "gptfm7zo",
+        "id": "gxalfj4b",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1105,7 +1235,7 @@
       },
       {
         "system": false,
-        "id": "8x9fnogn",
+        "id": "wwrngrs9",
         "name": "dev",
         "type": "text",
         "required": false,
@@ -1119,8 +1249,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -1136,7 +1266,7 @@
     "schema": [
       {
         "system": false,
-        "id": "tpdbvp6t",
+        "id": "bxvcjf6d",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1150,7 +1280,7 @@
       },
       {
         "system": false,
-        "id": "7ommjz1e",
+        "id": "ayogbe5b",
         "name": "total",
         "type": "number",
         "required": false,
@@ -1164,7 +1294,7 @@
       },
       {
         "system": false,
-        "id": "auz9rnr1",
+        "id": "cioh6i4z",
         "name": "wrong_count",
         "type": "json",
         "required": false,
@@ -1176,7 +1306,7 @@
       },
       {
         "system": false,
-        "id": "5gnpnkfn",
+        "id": "74fgjyqr",
         "name": "validation_return_count",
         "type": "json",
         "required": false,
@@ -1188,7 +1318,7 @@
       },
       {
         "system": false,
-        "id": "wufweyi2",
+        "id": "bkxdlxis",
         "name": "ko_count",
         "type": "json",
         "required": false,
@@ -1200,7 +1330,7 @@
       },
       {
         "system": false,
-        "id": "ifcmiug6",
+        "id": "uzhiju8s",
         "name": "underestimated_count",
         "type": "json",
         "required": false,
@@ -1212,13 +1342,13 @@
       }
     ],
     "indexes": [],
-    "listRule": null,
-    "viewRule": null,
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
     "options": {
-      "query": "select \n  t.sprint as id,\n  t.sprint,\n  count(t.key) as total,\n  sum(\n    case when (t.labels like '%wrong%') then 1\n    else 0\n    end\n  ) as wrong_count,\n  sum(\n    case when (t.labels like '%return%') then 1\n    else 0\n    end\n  ) as validation_return_count,\n  sum(\n    case when (t.labels like '%ko%') then 1\n    else 0\n    end\n  ) as ko_count,\n  sum(\n    case when (t.labels like '%estimated%') then 1\n    else 0\n    end\n  ) as underestimated_count\nfrom tickets as t\ninner join latest_sprint_snapshot_date_view l on l.date = t.date\nwhere labels like '%wrong%' or labels like '%ko%' or labels like '%return%' or labels like '%underestimated%'\nGROUP BY t.sprint"
+      "query": "select \n  t.sprint as id,\n  t.sprint,\n  count(t.key) as total,\n  sum(\n    case when (t.labels like '%wrong%') then 1\n    else 0\n    end\n  ) as wrong_count,\n  sum(\n    case when (t.labels like '%return%') then 1\n    else 0\n    end\n  ) as validation_return_count,\n  sum(\n    case when (t.labels like '%ko%') then 1\n    else 0\n    end\n  ) as ko_count,\n  sum(\n    case when (t.labels like '%estimated%') then 1\n    else 0\n    end\n  ) as underestimated_count\nfrom tickets as t\ninner join latest_sprint_snapshot_date_view l on l.date = t.date\nwhere labels like '%wrong%' or labels like '%ko%' or labels like '%return%' or labels like '%underestimated%' or labels like '%missed%'\nGROUP BY t.sprint"
     }
   },
   {
@@ -1229,7 +1359,7 @@
     "schema": [
       {
         "system": false,
-        "id": "rawfhum5",
+        "id": "xcyqc25o",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1243,7 +1373,7 @@
       },
       {
         "system": false,
-        "id": "rmpqjvko",
+        "id": "6vcwecax",
         "name": "points",
         "type": "json",
         "required": false,
@@ -1255,7 +1385,7 @@
       },
       {
         "system": false,
-        "id": "cx0bqoii",
+        "id": "ypjv2scw",
         "name": "start_at",
         "type": "json",
         "required": false,
@@ -1267,7 +1397,7 @@
       },
       {
         "system": false,
-        "id": "ex5k89ll",
+        "id": "le8zyczi",
         "name": "endt_at",
         "type": "json",
         "required": false,
@@ -1279,8 +1409,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -1296,7 +1426,7 @@
     "schema": [
       {
         "system": false,
-        "id": "brvbijy4",
+        "id": "ezbsg6ks",
         "name": "sprint",
         "type": "text",
         "required": false,
@@ -1310,7 +1440,7 @@
       },
       {
         "system": false,
-        "id": "xru8jma3",
+        "id": "w9pbonrc",
         "name": "date",
         "type": "text",
         "required": false,
@@ -1324,7 +1454,7 @@
       },
       {
         "system": false,
-        "id": "tbwkjuz0",
+        "id": "qjqeemov",
         "name": "tbd_points",
         "type": "json",
         "required": false,
@@ -1336,7 +1466,7 @@
       },
       {
         "system": false,
-        "id": "u4rtz9d1",
+        "id": "tnsixsxe",
         "name": "to_val_points",
         "type": "json",
         "required": false,
@@ -1348,7 +1478,7 @@
       },
       {
         "system": false,
-        "id": "1t635mwm",
+        "id": "i2g45oe7",
         "name": "done_points",
         "type": "json",
         "required": false,
@@ -1360,7 +1490,7 @@
       },
       {
         "system": false,
-        "id": "bmfpewgh",
+        "id": "hylgisgq",
         "name": "total_points",
         "type": "json",
         "required": false,
@@ -1372,8 +1502,8 @@
       }
     ],
     "indexes": [],
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
