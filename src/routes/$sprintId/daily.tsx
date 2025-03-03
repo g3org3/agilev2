@@ -11,6 +11,7 @@ import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsVi
 import DepGraph from '@/components/DepGraph'
 import { BDC } from '@/components/BDC'
 import Investigations from '@/components/Investigations'
+import { sortByStatus } from '@/services/sort'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -265,7 +266,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
         </Tr>
       </Thead>
       <Tbody>
-        {tickets.sort(SortFn).filter(filterIfWasDoneYesterday(old_tickets)).map(ticket => {
+        {tickets.sort(sortByStatus).filter(filterIfWasDoneYesterday(old_tickets)).map(ticket => {
           const warning = ['Done'].includes(ticket.status)
             ? null
             : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
@@ -422,22 +423,6 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
       </Tbody>
     </Table>
   )
-}
-
-function SortFn(ta: TicketsResponse, tb: TicketsResponse): number {
-  const byStatus: Record<string, number> = {
-    'To Do': 0,
-    'To Develop': 1,
-    'In Progress': 2,
-    'In Review': 3,
-    'In Test': 4,
-    'Done': 5,
-  }
-
-  const statusa = byStatus[ta.status]
-  const statusb = byStatus[tb.status]
-
-  return statusb - statusa
 }
 
 function Filter() {
