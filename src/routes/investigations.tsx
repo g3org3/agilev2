@@ -13,14 +13,16 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { FormEventHandler, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { pb } from '@/services/pb'
 import {
   Collections,
   InvestigationsInvStatusOptions,
+  InvestigationsRecord,
   InvestigationsResponse,
 } from '@/services/pocketbase-types'
+import { queryClient } from '@/services/queryClient'
 
 export const Route = createFileRoute('/investigations')({
   component: InvestigationsPage,
@@ -30,6 +32,18 @@ function InvestigationsPage() {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [selectedDev, setSelectedDev] = useState('')
+  const { mutate: updateInvestigation, isPending: isUpdating } = useMutation({
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Investigations, 'all'],
+      })
+    },
+    mutationFn(params: { id: string; payload: Partial<InvestigationsRecord> }) {
+      return pb
+        .collection(Collections.Investigations)
+        .update<InvestigationsRecord>(params.id, params.payload)
+    },
+  })
   const {
     data: investigations = [],
     isLoading,
@@ -65,6 +79,13 @@ function InvestigationsPage() {
     setQuery(search)
   }
 
+  const onDone = (id: string) => {
+    updateInvestigation({
+      id,
+      payload: { inv_status: InvestigationsInvStatusOptions.DONE },
+    })
+  }
+
   if (isLoading || isFetching) {
     return <Flex>loading...</Flex>
   }
@@ -75,7 +96,9 @@ function InvestigationsPage() {
     <Flex flexDir="column" gap={isOpen ? 5 : 0}>
       <form onSubmit={onSearch}>
         <Flex gap={4} marginBottom="50px">
-          <Button colorScheme="blue" onClick={() => setIsOpen(!isOpen)}>toggle</Button>
+          <Button colorScheme="blue" onClick={() => setIsOpen(!isOpen)}>
+            toggle
+          </Button>
           <Select
             defaultValue={selectedDev}
             name="dev"
@@ -174,6 +197,17 @@ function InvestigationsPage() {
                         <Td title={ticket.summary}>
                           {ticket.summary.substring(0, 80)}
                         </Td>
+                        {pb.authStore.model?.isAdmin && (
+                          <Td>
+                            <Button
+                              isLoading={isUpdating}
+                              colorScheme="red"
+                              onClick={() => onDone(ticket.id)}
+                            >
+                              DONE
+                            </Button>
+                          </Td>
+                        )}
                       </Tr>
                     ))}
                   </Tbody>
