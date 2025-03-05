@@ -127,6 +127,10 @@ function Home() {
     .map((sprint) => ({ sprint: sprint.sprint, percentage: sprint.percentage }))
     .reverse()
 
+  if (isFetchingLabels || isFetchingSprint) {
+    return <Flex>isFetching</Flex>
+  }
+
   return (
     <>
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">

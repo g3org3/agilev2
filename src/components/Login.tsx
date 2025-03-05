@@ -1,19 +1,22 @@
 import { pb } from '@/services/pb'
-import { Collections } from '@/services/pocketbase-types'
+import { Collections, UsersResponse } from '@/services/pocketbase-types'
 import { Button, Flex, Text } from '@chakra-ui/react'
 import { ClientResponseError } from 'pocketbase'
+import { usePostHog } from 'posthog-js/react'
 
 export function Login() {
+  const posthog = usePostHog()
   const onLogin = async () => {
     let res = null
     try {
       res = await pb
         .collection(Collections.Users)
-        .authWithOAuth2({ provider: 'google' })
+        .authWithOAuth2<UsersResponse>({ provider: 'google' })
     } catch (e) {
       const err = e as ClientResponseError
       alert(err.message)
     }
+    if (res) posthog.identify(res.record.email)
     if (res?.meta?.avatarUrl) {
       const { avatarUrl } = res.meta
       await pb

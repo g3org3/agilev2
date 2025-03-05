@@ -21,7 +21,7 @@ interface Props {
 type MyDatum = { date: string; points: number }
 
 export function BDC(props: Props) {
-  const { data: staffing = [], isLoading } = useQuery({
+  const { data: staffing = [], isFetching: isLoading } = useQuery({
     queryKey: [Collections.Staffing, props.sprintId],
     queryFn: () =>
       pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
@@ -29,7 +29,7 @@ export function BDC(props: Props) {
       }),
   })
 
-  const { data: last_sprint_points = [], isLoading: isLoading2 } = useQuery({
+  const { data: last_sprint_points = [], isFetching: isLoading2 } = useQuery({
     queryKey: [Collections.LatestSprintPointsView, props.sprintId],
     queryFn: () =>
       pb
