@@ -16,7 +16,11 @@ export function Login() {
       const err = e as ClientResponseError
       alert(err.message)
     }
-    if (res) posthog.identify(res.record.email)
+    if (res)
+      posthog.identify(res.record.email, {
+        email: res.record.email,
+        name: res.record.name,
+      })
     if (res?.meta?.avatarUrl) {
       const { avatarUrl } = res.meta
       await pb
