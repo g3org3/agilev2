@@ -132,6 +132,7 @@ function Daily() {
               isActive={!!viewSummary}
               variant="outline"
               size="sm"
+              name="toggle summary"
               colorScheme="green">
               toggle summary
             </Button>
@@ -142,6 +143,7 @@ function Daily() {
             search={(params) => ({ ...params, viewInvestigations: !viewInvestigations })}
           >
             <Button
+              name="toggle investigations"
               w={{ base: '100%', md: 'unset' }}
               isActive={!!viewInvestigations}
               size="sm"

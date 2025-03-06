@@ -17,7 +17,7 @@ export function Login() {
       alert(err.message)
     }
     if (res)
-      posthog.identify(res.record.email, {
+      posthog?.identify(res.record.email, {
         email: res.record.email,
         name: res.record.name,
       })
