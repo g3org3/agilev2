@@ -48,6 +48,9 @@ export function BDC(props: Props) {
       queryClient.invalidateQueries({
         queryKey: [Collections.Staffing, props.sprintId],
       })
+      queryClient.invalidateQueries({
+        queryKey: [Collections.LatestSprintPointsView, props.sprintId],
+      })
     }, 5000)
 
     pb.collection(Collections.Staffing).subscribe<StaffingResponse>(
@@ -59,8 +62,15 @@ export function BDC(props: Props) {
       }
     )
 
+    pb.collection(Collections.Tickets).subscribe<StaffingResponse>('*', (e) => {
+      if (e.record.sprint === props.sprintId) {
+        invalidate()
+      }
+    })
+
     return () => {
       pb.collection(Collections.Staffing).unsubscribe('*')
+      pb.collection(Collections.Tickets).unsubscribe('*')
     }
   }, [props.sprintId])
 

@@ -63,7 +63,7 @@ function Daily() {
 
   const filter = `sprint = '${sprintId}' && date = '${selectedDate}'`
 
-  const { data: _tickets = [], isFetching: isFetchingTickets } = useQuery({
+  const { data: full_tickets_hack = [], isFetching: isFetchingTickets } = useQuery({
     queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets)
       .getFullList<TicketsResponse<string[], string[]>>({
@@ -72,8 +72,7 @@ function Daily() {
       }),
     enabled: !!selectedDate,
   })
-  const full_tickets_hack = _tickets
-  const tickets = _tickets.filter(ticket => ticket.status !== 'To Do')
+  const tickets = full_tickets_hack.filter(ticket => ticket.status !== 'To Do')
 
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [], isFetching: isFetchingOldTickets } = useQuery({
@@ -116,7 +115,6 @@ function Daily() {
   }, [previous_day, selectedDate, selectedDev, sprintId])
 
   let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
-  const full_tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
   if (filterBy === 'problems') {
     tickets_or_cache = tickets_or_cache.filter((ticket) => {
       const labels = ticket.labels?.join(' ') || ''

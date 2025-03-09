@@ -7,7 +7,6 @@ import {
   CircularProgress,
 } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
-import { RepeatIcon } from '@chakra-ui/icons'
 
 import { Login } from '@/components/Login'
 import { Logout } from './Logout'
