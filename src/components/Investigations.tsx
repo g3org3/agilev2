@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Skeleton } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 
 import { pb } from '@/services/pb'
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function Investigations(props: Props) {
-  const { data: investigations = [] } = useQuery({
+  const { data: investigations = [], isFetching } = useQuery({
     queryKey: [
       Collections.Investigations,
       props.selectedDate,
@@ -35,6 +35,14 @@ export default function Investigations(props: Props) {
   })
 
   investigations.sort(sortByStatus)
+
+  if (isFetching) {
+    return (
+      <Flex bg="white">
+        <Skeleton width="100%" height="60px" />
+      </Flex>
+    )
+  }
 
   return (
     <Flex bg="white" boxShadow="md" rounded="md" flexDir="column">

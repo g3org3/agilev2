@@ -44,6 +44,19 @@ function Navbar() {
               Agile
             </Button>
           </Link>
+          {pb.authStore.model?.isAdmin && (
+            <Link to="/investigations">
+              <Button
+                size="sm"
+                variant="ghost"
+                fontWeight="bold"
+                letterSpacing="2px"
+                fontSize="lg"
+              >
+                inv
+              </Button>
+            </Link>
+          )}
           <Spacer />
           <Logout />
         </Flex>

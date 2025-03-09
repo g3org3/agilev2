@@ -118,7 +118,7 @@ export function BDC(props: Props) {
   return (
     <Flex flexDir="column" bg="white" boxShadow="md" rounded="md">
       <Text pl={5} fontSize="x-large">
-        BDC Chart
+        Burndown Chart
       </Text>
       <Flex display="inline-block" h={{ base: '200px', md: '400px' }} w="100%">
         <Chart
