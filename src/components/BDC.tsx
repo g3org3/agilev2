@@ -9,8 +9,10 @@ import {
 } from '@/services/pocketbase-types'
 import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/services/pb'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { getNextDate } from '@/services/dates'
+import { throttle } from '@/services/throttle'
+import { queryClient } from '@/services/queryClient'
 
 interface Props {
   tickets: TicketsResponse<string[], string[]>[]
@@ -40,6 +42,27 @@ export function BDC(props: Props) {
           filter: `sprint = '${props.sprintId}'`,
         }),
   })
+
+  useEffect(() => {
+    const invalidate = throttle(() => {
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Staffing, props.sprintId],
+      })
+    }, 5000)
+
+    pb.collection(Collections.Staffing).subscribe<StaffingResponse>(
+      '*',
+      (e) => {
+        if (e.record.sprint === props.sprintId) {
+          invalidate()
+        }
+      }
+    )
+
+    return () => {
+      pb.collection(Collections.Staffing).unsubscribe('*')
+    }
+  }, [props.sprintId])
 
   const byDay = useMemo(() => {
     const _by: Record<string, number> = {}
@@ -79,7 +102,7 @@ export function BDC(props: Props) {
     for (const day of last_sprint_points) {
       _data.push({
         date: day.date,
-        points: total - (day.done_points || 0) // - (day.to_val_points || 0),
+        points: total - (day.done_points || 0), // - (day.to_val_points || 0),
       })
     }
 
@@ -113,21 +136,21 @@ export function BDC(props: Props) {
     },
   ]
 
-  if (!props.tbd_points || isLoading || isLoading2) return
-
   return (
     <Flex flexDir="column" bg="white" boxShadow="md" rounded="md">
       <Text pl={5} fontSize="x-large">
         Burndown Chart
       </Text>
       <Flex display="inline-block" h={{ base: '200px', md: '400px' }} w="100%">
-        <Chart
-          options={{
-            data: series,
-            primaryAxis,
-            secondaryAxes,
-          }}
-        />
+        {props.tbd_points && !isLoading && !isLoading2 ? (
+          <Chart
+            options={{
+              data: series,
+              primaryAxis,
+              secondaryAxes,
+            }}
+          />
+        ) : null}
       </Flex>
     </Flex>
   )

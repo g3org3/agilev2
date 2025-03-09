@@ -12,9 +12,10 @@ import {
   Container,
   Flex,
   Select,
+  Skeleton,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { AxisOptions, Chart } from 'react-charts'
 import z from 'zod'
 
@@ -23,7 +24,10 @@ import {
   Collections,
   SprintsLabelsViewResponse,
   SprintsViewResponse,
+  TicketsResponse,
 } from '@/services/pocketbase-types'
+import { throttle } from '@/services/throttle'
+import { queryClient } from '@/services/queryClient'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -31,6 +35,15 @@ export const Route = createFileRoute('/')({
     project: z.enum(['compass', 'datafeed', 'all']).nullish(),
   }),
 })
+
+const invalidateQueries = throttle(() => {
+  queryClient.invalidateQueries({
+    queryKey: [Collections.SprintsView, 'get-all', 'sort-sprint-desc'],
+  })
+  queryClient.invalidateQueries({
+    queryKey: [Collections.SprintsLabelsView, 'get-all'],
+  })
+}, 5000)
 
 function Home() {
   const { project = 'compass' } = Route.useSearch()
@@ -44,6 +57,17 @@ function Home() {
           sort: '-sprint',
         }),
   })
+
+  useEffect(() => {
+    console.log('subscribed')
+    pb.collection(Collections.Tickets).subscribe<TicketsResponse>('*', () => {
+      invalidateQueries()
+    })
+
+    return () => {
+      pb.collection(Collections.Tickets).unsubscribe('*')
+    }
+  }, [])
 
   const { data: sprintlabels = [], isFetching: isFetchingLabels } = useQuery({
     queryKey: [Collections.SprintsLabelsView, 'get-all'],
@@ -127,20 +151,24 @@ function Home() {
     .map((sprint) => ({ sprint: sprint.sprint, percentage: sprint.percentage }))
     .reverse()
 
-  if (isFetchingLabels || isFetchingSprint) {
-    return <Flex>isFetching</Flex>
-  }
-
   return (
     <>
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
         <Heading fontWeight="regular">Sprints</Heading>
         <Flex gap="4" flexDirection={{ base: 'column', md: 'row' }}>
-          <Flex bg="white" boxShadow="lg" rounded="md" flex="1">
-            {!isFetchingLabels && <ProblemGraph problems={problems} />}
+          <Flex bg="white" boxShadow="lg" rounded="md" flex="1" height="324px">
+            {!isFetchingLabels ? (
+              <ProblemGraph problems={problems} />
+            ) : (
+              <Skeleton height="324px" width="100%" />
+            )}
           </Flex>
-          <Flex bg="white" boxShadow="lg" rounded="md" flex="1">
-            {!isFetchingSprint && <SprintGraph sprints={sprints_graph} />}
+          <Flex bg="white" boxShadow="lg" rounded="md" flex="1" height="324px">
+            {!isFetchingSprint ? (
+              <SprintGraph sprints={sprints_graph} />
+            ) : (
+              <Skeleton height="324px" width="100%" />
+            )}
           </Flex>
         </Flex>
         <Select
@@ -173,6 +201,14 @@ function Home() {
             </Tr>
           </Thead>
           <Tbody>
+            {isFetchingSprint &&
+              new Array(20).fill(0).map((_, index) => (
+                <Tr key={`i-${index}`}>
+                  <Td colSpan={5}>
+                    <Skeleton height="10px" width="100%" />
+                  </Td>
+                </Tr>
+              ))}
             {enhance_sprints.map((sprint) => (
               <Tr key={sprint.id}>
                 <Td>{sprint.id}</Td>

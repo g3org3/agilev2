@@ -1,9 +1,17 @@
 import { pb } from '@/services/pb'
-import { Container, Flex, Button, Spacer } from '@chakra-ui/react'
+import {
+  Container,
+  Flex,
+  Button,
+  Spacer,
+  CircularProgress,
+} from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
+import { RepeatIcon } from '@chakra-ui/icons'
 
 import { Login } from '@/components/Login'
 import { Logout } from './Logout'
+import { useIsFetching } from '@tanstack/react-query'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   if (!pb.authStore.isValid) {
@@ -29,6 +37,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function Navbar() {
+  const isFetching = useIsFetching()
+
   return (
     <Flex background="white" boxShadow="md" p="2" zIndex="1">
       <Container maxW="container.2xl">
@@ -58,6 +68,11 @@ function Navbar() {
             </Link>
           )}
           <Spacer />
+          {isFetching ? (
+            <Flex alignItems="center" px="30px">
+              <CircularProgress size="30px" isIndeterminate color="black" />
+            </Flex>
+          ) : null}
           <Logout />
         </Flex>
       </Container>

@@ -4,26 +4,42 @@ import { TicketsResponse } from '@/services/pocketbase-types'
 import { useMemo } from 'react'
 
 interface Props {
-  tickets?: TicketsResponse[]
+  tickets?: TicketsResponse<string[], string[]>[]
   track: string
   selectedDate?: string | null
   isLoading?: boolean
 }
 
-// WARN: warning this code is sh**
+interface TreeNodeData {
+  label: string
+  parents: string[] | null
+  status: string
+  children: string[]
+  points: number
+  owner: string
+}
+
+interface TreeNode {
+  id: string
+  type: string
+  position: { x: number; y: number }
+  data: TreeNodeData
+}
+
 export default function DepGraph(props: Props) {
-  const sgTickets =
-    (props.tickets || []).filter((x) => x.epic_name == props.track) || []
+  const tickets = props.tickets || []
+  const sgTickets = tickets.filter((x) => x.epic == props.track)
+  console.log({ sgTickets })
 
   const { edges, n } = useMemo(() => {
-    const edges: any[] = []
-    const roots: Record<string, any> = {}
-    const tree: Record<string, any> = {}
+    const edges: Array<{ id: string; source: string; target: string }> = []
+    const roots: Record<string, string[]> = {}
+    const tree: Record<string, TreeNode> = {}
     sgTickets.forEach((x) => {
       const { key, owner, points, status, parents } = x
 
       if (parents instanceof Array && !!parents?.length) {
-        for (let p of parents) {
+        for (const p of parents) {
           edges.push({ id: `ed-${p}-${key}`, source: p, target: key })
         }
       } else {
@@ -47,7 +63,7 @@ export default function DepGraph(props: Props) {
 
     sgTickets.forEach((x) => {
       if (x.parents instanceof Array && !!x.parents?.length) {
-        for (let p of x.parents) {
+        for (const p of x.parents) {
           if (roots[p]) {
             roots[p].push(x.key)
           }
@@ -61,19 +77,19 @@ export default function DepGraph(props: Props) {
     console.log(tree, roots)
     console.groupEnd()
 
-    const n: any[] = []
+    const n: Array<TreeNode> = []
 
-    const pushChild: (node: any, x: number, y: number) => void = (
+    const pushChild: (node: TreeNode, x: number, y: number) => void = (
       node,
       x,
       y
     ) => {
-      node.data.children.forEach((c: any, i: number) => {
+      node.data.children.forEach((c, i) => {
         const nn = tree[c]
         nn.position.x = x
         nn.position.y = (y + i) * 120
         n.push(nn)
-        if (!!nn.data.children?.length) {
+        if (nn.data.children?.length) {
           // console.log('push', nn.id, nn.data.children)
           pushChild(nn, x, y + i + 1)
         }
@@ -88,7 +104,7 @@ export default function DepGraph(props: Props) {
     })
 
     return { edges, n }
-  }, [props.track, props.selectedDate])
+  }, [sgTickets])
 
   // console.log(tree, roots)
 

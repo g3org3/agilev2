@@ -8,6 +8,9 @@ import {
 } from '@/services/pocketbase-types'
 import GenericTable from './GenericTable'
 import { sortByStatus } from '@/services/sort'
+import { useEffect } from 'react'
+import { throttle } from '@/services/throttle'
+import { queryClient } from '@/services/queryClient'
 
 interface Props {
   selectedDate: string
@@ -34,12 +37,36 @@ export default function Investigations(props: Props) {
         }),
   })
 
+  useEffect(() => {
+    pb.collection(Collections.Investigations).subscribe<InvestigationsResponse>(
+      '*',
+      (e) => {
+        const invalidate = throttle(() => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              Collections.Investigations,
+              props.selectedDate,
+              props.sprintId,
+              props.selectedDev,
+            ],
+          })
+        }, 5000)
+        if (e.record.sprint === props.sprintId) {
+          invalidate()
+        }
+      }
+    )
+    return () => {
+      pb.collection(Collections.Investigations).unsubscribe('*')
+    }
+  }, [props.selectedDate, props.sprintId, props.selectedDev])
+
   investigations.sort(sortByStatus)
 
   if (isFetching) {
     return (
-      <Flex bg="white">
-        <Skeleton width="100%" height="60px" />
+      <Flex bg="white" boxShadow="md">
+        <Skeleton width="100%" height="100px" />
       </Flex>
     )
   }

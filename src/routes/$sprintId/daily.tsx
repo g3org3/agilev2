@@ -1,4 +1,4 @@
-import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr, Select } from '@chakra-ui/react'
+import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr, Select, Skeleton } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
@@ -12,6 +12,8 @@ import DepGraph from '@/components/DepGraph'
 import { BDC } from '@/components/BDC'
 import Investigations from '@/components/Investigations'
 import { sortByStatus } from '@/services/sort'
+import { throttle } from '@/services/throttle'
+import { queryClient } from '@/services/queryClient'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -30,7 +32,7 @@ export const Route = createFileRoute('/$sprintId/daily')({
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev, view = 'table', filterBy, viewSummary = true, depGraph, viewInvestigations } = Route.useSearch()
+  const { selectedDate, selectedDev = '', view = 'table', filterBy, viewSummary = true, depGraph, viewInvestigations } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -59,9 +61,9 @@ function Daily() {
     return index === 0 || index === -1 ? null : dates[index - 1].date
   }, [dates, selectedDate])
 
-  const filter = `sprint = '${sprintId}' && date = '${selectedDate}' && status != 'To Do'`
+  const filter = `sprint = '${sprintId}' && date = '${selectedDate}'`
 
-  const { data: tickets = [], isFetching: isFetchingTickets } = useQuery({
+  const { data: _tickets = [], isFetching: isFetchingTickets } = useQuery({
     queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets)
       .getFullList<TicketsResponse<string[], string[]>>({
@@ -70,6 +72,8 @@ function Daily() {
       }),
     enabled: !!selectedDate,
   })
+  const full_tickets_hack = _tickets
+  const tickets = _tickets.filter(ticket => ticket.status !== 'To Do')
 
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [], isFetching: isFetchingOldTickets } = useQuery({
@@ -87,6 +91,29 @@ function Daily() {
     queryFn: () => pb.collection(Collections.SprintsView)
       .getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
   })
+
+  useEffect(() => {
+    const invalidateQueries = throttle(() => {
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [Collections.SprintsView, 'get-one', sprintId],
+      })
+    }, 5000)
+
+    pb.collection(Collections.Tickets).subscribe<TicketsResponse>('*', (e) => {
+      if (sprintId == e.record.sprint) {
+        invalidateQueries()
+      }
+    })
+    return () => {
+      pb.collection(Collections.Tickets).unsubscribe('*')
+    }
+  }, [previous_day, selectedDate, selectedDev, sprintId])
 
   let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
   const full_tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
@@ -134,7 +161,7 @@ function Daily() {
               size="sm"
               name="toggle summary"
               colorScheme="green">
-              toggle summary
+              summary
             </Button>
           </Link>
           <Link
@@ -149,7 +176,7 @@ function Daily() {
               size="sm"
               variant="outline"
               colorScheme="purple">
-              toggle investigations
+              investigations
             </Button>
           </Link>
           <Spacer />
@@ -168,19 +195,28 @@ function Daily() {
         </Flex>
       </Heading>
       {viewInvestigations && selectedDate && <Investigations sprintId={sprintId} selectedDate={selectedDate} selectedDev={selectedDev} />}
-      {depGraph ? <DepGraph isLoading={isFetchingTickets || isFetchingOldTickets} selectedDate={selectedDate} track={depGraph} tickets={full_tickets_or_cache} /> : <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
-        {viewSummary ? (
-          <Flex flexDir="column" gap={4}>
-            <DaySummary tickets={tickets_or_cache} />
-            <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
+      {depGraph ? (
+        <DepGraph
+          isLoading={isFetchingTickets || isFetchingOldTickets}
+          selectedDate={selectedDate}
+          track={depGraph}
+          tickets={full_tickets_hack} />
+      ) : (
+        <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
+          {viewSummary ? (
+            <Flex flexDir="column" gap={4} position="relative">
+              <DaySummary tickets={tickets_or_cache} />
+              {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="436px" position="absolute" bottom="0" zIndex="10" opacity="0.8"></Flex>}
+              <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
+            </Flex>
+          ) : null}
+          <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
+            {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="100%" position="absolute" zIndex="10" opacity="0.8"></Flex>}
+            {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+            {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
           </Flex>
-        ) : null}
-        <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
-          {isFetchingTickets || isFetchingOldTickets && <Flex animation="pu" background="gray.100" w="100%" h="100%" position="absolute" zIndex="1" opacity="0.7"></Flex>}
-          {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
-          {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
         </Flex>
-      </Flex>}
+      )}
     </>
   )
 }
@@ -307,7 +343,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
                 {ticket.epic_name && <Link
                   to="/$sprintId/daily"
                   params={{ sprintId }}
-                  search={(params) => ({ ...params, depGraph: ticket.epic_name })}
+                  search={(params) => ({ ...params, depGraph: ticket.epic })}
                 >
                   <Button
                     variant="ghost"
@@ -345,7 +381,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev } = Route.useSearch()
 
-  const { data: devs = [] } = useQuery({
+  const { data: devs = [], isFetching: isFetchingDevs } = useQuery({
     queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
     queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
       filter: `sprint = '${sprintId}'`,
@@ -353,7 +389,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
     }),
   })
 
-  const { data: staffing = [] } = useQuery({
+  const { data: staffing = [], isFetching: isFetchingStaffing } = useQuery({
     queryKey: [Collections.Staffing, sprintId, selectedDate],
     queryFn: () => pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
       filter: `sprint = '${sprintId}' && utc_date < '${selectedDate} 00:00:00.000Z'`,
@@ -389,6 +425,12 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
       late: done - tbd
     }
   })
+
+  if (isFetchingDevs || isFetchingStaffing) {
+    return <Flex flexDir="column" width={{ base: '100%', md: '600px' }} rounded="lg">
+      <Skeleton height="200px" rounded="lg" boxShadow="md" />
+    </Flex>
+  }
 
 
   return (
@@ -473,6 +515,23 @@ function DateBtns() {
       filter: `sprint = '${sprintId}'`
     })
   })
+
+  useEffect(() => {
+    const invalidate = throttle((queryKey: string[]) => {
+      queryClient.invalidateQueries({ queryKey })
+    }, 5000)
+    pb.collection(Collections.Staffing).subscribe<StaffingResponse>('*', (e) => {
+      if (e.record.sprint === sprintId) {
+        invalidate([Collections.Staffing, sprintId, selectedDate])
+        invalidate([Collections.SprintDevsView, 'get-by-sprint', sprintId])
+        invalidate([Collections.SprintDatesView, 'get-by-sprint', sprintId])
+      }
+    })
+
+    return () => {
+      pb.collection(Collections.Staffing).unsubscribe('*')
+    }
+  }, [selectedDate, sprintId])
 
   const final_date = getNextDate(dates.length > 0 ? dates[dates.length - 1].date : null)
 

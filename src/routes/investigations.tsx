@@ -12,7 +12,7 @@ import {
   Select,
   Button,
 } from '@chakra-ui/react'
-import { FormEventHandler, useMemo, useState } from 'react'
+import { FormEventHandler, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { pb } from '@/services/pb'
@@ -23,6 +23,7 @@ import {
   InvestigationsResponse,
 } from '@/services/pocketbase-types'
 import { queryClient } from '@/services/queryClient'
+import { throttle } from '@/services/throttle'
 
 export const Route = createFileRoute('/investigations')({
   component: InvestigationsPage,
@@ -55,6 +56,24 @@ function InvestigationsPage() {
         .collection(Collections.Investigations)
         .getFullList<InvestigationsResponse>(),
   })
+
+  useEffect(() => {
+    const invalidate = throttle(() => {
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Investigations, 'all'],
+      })
+    }, 5000)
+
+    pb.collection(Collections.Investigations).subscribe('*', (e) => {
+      if (e.action !== 'update') {
+        invalidate()
+      }
+    })
+
+    return () => {
+      pb.collection(Collections.Investigations).unsubscribe('*')
+    }
+  }, [])
 
   const groupByInvestigations = useMemo(() => {
     const by: Record<string, InvestigationsResponse[]> = {}
