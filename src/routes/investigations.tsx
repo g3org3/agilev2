@@ -34,6 +34,11 @@ function InvestigationsPage() {
   const [query, setQuery] = useState('')
   const [selectedDev, setSelectedDev] = useState('')
   const { mutate: updateInvestigation, isPending: isUpdating } = useMutation({
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: [Collections.Investigations, 'all'],
+      })
+    },
     mutationFn(params: { id: string; payload: Partial<InvestigationsRecord> }) {
       return pb
         .collection(Collections.Investigations)
