@@ -50,7 +50,7 @@ function Navbar() {
               letterSpacing="2px"
               fontSize="lg"
             >
-              Agile
+              Agile <small>(0.1)</small>
             </Button>
           </Link>
           {pb.authStore.model?.isAdmin && (
