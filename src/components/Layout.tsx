@@ -1,4 +1,4 @@
-import { pb } from '@/services/pb'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   Container,
   Flex,
@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
 
+import { pb } from '@/services/pb'
 import { Login } from '@/components/Login'
 import { Logout } from './Logout'
 import { useIsFetching } from '@tanstack/react-query'
@@ -31,6 +32,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       >
         {children}
       </Container>
+      {pb.authStore.model?.isAdmin && (
+        <ReactQueryDevtools
+          buttonPosition="bottom-left"
+          initialIsOpen={false}
+        />
+      )}
     </Flex>
   )
 }
