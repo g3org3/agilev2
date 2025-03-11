@@ -92,7 +92,7 @@ function Daily() {
   })
 
   useEffect(() => {
-    const invalidateQueries = throttle(() => {
+    const invalidate = throttle(() => {
       queryClient.invalidateQueries({
         queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
       })
@@ -106,7 +106,7 @@ function Daily() {
 
     pb.collection(Collections.Tickets).subscribe<TicketsResponse>('*', (e) => {
       if (sprintId == e.record.sprint) {
-        invalidateQueries()
+        invalidate()
       }
     })
     return () => {
@@ -515,14 +515,14 @@ function DateBtns() {
   })
 
   useEffect(() => {
-    const invalidate = throttle((queryKey: string[]) => {
-      queryClient.invalidateQueries({ queryKey })
+    const invalidate = throttle(() => {
+      queryClient.invalidateQueries({ queryKey: [Collections.Staffing, sprintId, selectedDate] })
+      queryClient.invalidateQueries({ queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId] })
+      queryClient.invalidateQueries({ queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId] })
     }, 5000)
     pb.collection(Collections.Staffing).subscribe<StaffingResponse>('*', (e) => {
       if (e.record.sprint === sprintId) {
-        invalidate([Collections.Staffing, sprintId, selectedDate])
-        invalidate([Collections.SprintDevsView, 'get-by-sprint', sprintId])
-        invalidate([Collections.SprintDatesView, 'get-by-sprint', sprintId])
+        invalidate()
       }
     })
 
