@@ -1,4 +1,3 @@
-// import { QueryClientProvider } from '@tanstack/react-query'
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 // import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -17,18 +16,24 @@ const persister = createSyncStoragePersister({
 })
 
 export const Route = createRootRoute({
-  component: () => (
-    <PersistQueryClientProvider
-      persistOptions={{ persister }}
-      client={queryClient}
-    >
-      <ChakraProvider theme={theme}>
-        <Layout>
-          <Outlet />
-        </Layout>
-      </ChakraProvider>
-      {/* {isDev && <TanStackRouterDevtools />} */}
-      {isDev && <ReactQueryDevtools initialIsOpen={false} />}
-    </PersistQueryClientProvider>
-  ),
+  component: () => {
+    const isRQDTVisible = window.localStorage.getItem('agile:dev') === '"true"'
+
+    return (
+      <PersistQueryClientProvider
+        persistOptions={{ persister }}
+        client={queryClient}
+      >
+        <ChakraProvider theme={theme}>
+          <Layout>
+            <Outlet />
+          </Layout>
+        </ChakraProvider>
+        {/* {isDev && <TanStackRouterDevtools />} */}
+        {(isDev || isRQDTVisible) && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </PersistQueryClientProvider>
+    )
+  },
 })
