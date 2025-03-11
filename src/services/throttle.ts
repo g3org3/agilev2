@@ -13,6 +13,7 @@ export function throttle(func, delay) {
     }
 
     const id = setTimeout(() => {
+      console.log('invalidating')
       func(...args)
     }, delay)
 
