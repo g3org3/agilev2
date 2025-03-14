@@ -68,7 +68,7 @@
     "indexes": [],
     "listRule": "@request.auth.id != \"\"",
     "viewRule": "@request.auth.id != \"\"",
-    "createRule": "",
+    "createRule": "@request.auth.id != \"\"",
     "updateRule": "id = @request.auth.id",
     "deleteRule": "id = @request.auth.id",
     "options": {
@@ -82,6 +82,128 @@
       "onlyVerified": false,
       "requireEmail": false
     }
+  },
+  {
+    "id": "vlawgi2c4422abn",
+    "name": "challenges",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "fvxwuhkt",
+        "name": "challenge",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "qxjm2k2n",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "xe18dwhnwwqlydj",
+    "name": "comments",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "tifsavdd",
+        "name": "authorId",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "6kvdebib",
+        "name": "eventId",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "nlmh7n2j",
+        "name": "text",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "gwh6kyzm",
+        "name": "sample",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "mimeTypes": [],
+          "thumbs": [],
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "protected": false
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
   },
   {
     "id": "5cfsfr9uft8d9vx",
@@ -222,6 +344,81 @@
     "createRule": "",
     "updateRule": "",
     "deleteRule": "",
+    "options": {}
+  },
+  {
+    "id": "ukx1vup7u2tqit9",
+    "name": "events",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "dckj7qek",
+        "name": "authorId",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "05vtxbsv",
+        "name": "notes",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "foxvrjtz",
+        "name": "sharedWith",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "hs00nhdv",
+        "name": "title",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id = authorId || @request.auth.id = sharedWith.id",
+    "viewRule": "@request.auth.id = authorId || @request.auth.id = sharedWith.id",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": "@request.auth.id = authorId",
+    "deleteRule": null,
     "options": {}
   },
   {
@@ -366,6 +563,548 @@
     "createRule": "",
     "updateRule": "",
     "deleteRule": "",
+    "options": {}
+  },
+  {
+    "id": "mklhcrninl097du",
+    "name": "links",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "ersqtq3y",
+        "name": "title",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "vsh1xdlo",
+        "name": "tags",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "lnpgzwsa",
+        "name": "author",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "lfx8nw42",
+        "name": "desc",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "cg7nzdj4",
+        "name": "image",
+        "type": "url",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "exceptDomains": null,
+          "onlyDomains": null
+        }
+      },
+      {
+        "system": false,
+        "id": "lngguunz",
+        "name": "url",
+        "type": "url",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "exceptDomains": null,
+          "onlyDomains": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": null,
+    "createRule": "",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "v4sce7qii76p0jl",
+    "name": "matches",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "zvzvb9hz",
+        "name": "home",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "qx0lnwam",
+        "name": "away",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "fmirfyce",
+        "name": "homeScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "olfvzkob",
+        "name": "awayScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "ffulilsq",
+        "name": "tournament",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "a8upuky9dg8vff5",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "pzght9k0",
+        "name": "startAtUtc",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "nhqvahqs",
+        "name": "matchNumber",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "d5autnqk",
+        "name": "roundNumber",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "q8o5enyk",
+        "name": "location",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "yeo0y8x8seee931",
+    "name": "nextsteps",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "gqigi8yo",
+        "name": "authorId",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "3jkqv0p7",
+        "name": "doneAt",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "9ntpiujf",
+        "name": "eventId",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "ukx1vup7u2tqit9",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "axrjfvh2",
+        "name": "title",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "iwsxjpgk",
+        "name": "type",
+        "type": "select",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "doubt",
+            "nextstep"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "t2mgv8a9",
+        "name": "remindAt",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": "@request.auth.id != \"\"",
+    "deleteRule": "@request.auth.id != \"\"",
+    "options": {}
+  },
+  {
+    "id": "0c8g33as04c65m7",
+    "name": "passkeys",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "zvgu39of",
+        "name": "webauthnUserID",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "xcuog1mf",
+        "name": "credentialId",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "85duyd6k",
+        "name": "publicKey",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "4yqzbkvy",
+        "name": "counter",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": true
+        }
+      },
+      {
+        "system": false,
+        "id": "ssxbphdh",
+        "name": "transports",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 2000000
+        }
+      },
+      {
+        "system": false,
+        "id": "aku692bc",
+        "name": "deviceType",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "singleDevice",
+            "multiDevice"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "gt0satuz",
+        "name": "backedUp",
+        "type": "bool",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "2joesgk2",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": null,
+    "createRule": "",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "d3f6aq6gcuo403s",
+    "name": "predictions",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "xv8sfolv",
+        "name": "user",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "oroqwfsd",
+        "name": "homeScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "8bxcke9m",
+        "name": "awayScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "klnh6pdk",
+        "name": "match",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "v4sce7qii76p0jl",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "user.id = @request.auth.id",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": "user.id = @request.auth.id",
+    "updateRule": "user.id = @request.auth.id",
+    "deleteRule": "@request.auth.id != \"\"",
     "options": {}
   },
   {
@@ -1010,6 +1749,77 @@
     "options": {}
   },
   {
+    "id": "a8upuky9dg8vff5",
+    "name": "tournaments",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cnahi4pj",
+        "name": "name",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "e8cqvyow",
+        "name": "logo",
+        "type": "url",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "exceptDomains": null,
+          "onlyDomains": null
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
+    "id": "w673uw9iqv7oeh3",
+    "name": "updates",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "27bpspnu",
+        "name": "sprint",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
     "id": "gxf0ibfbt4enw72",
     "name": "investigations_by_sprint_view",
     "type": "view",
@@ -1246,6 +2056,326 @@
     "deleteRule": null,
     "options": {
       "query": "SELECT\n  t.sprint as id,\n  t.sprint,\n  max(t.date) as date\nFROM tickets t\ngroup by t.sprint"
+    }
+  },
+  {
+    "id": "fws82vvwsfzvzn7",
+    "name": "leaderboard",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "k9nq4zhy",
+        "name": "user",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "uy1mokai",
+        "name": "tournament_id",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "a8upuky9dg8vff5",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "dj5fizyo",
+        "name": "points",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "select \n  concat(r.user, '-', r.tournament_id) as id,\n  r.user,\n  r.tournament_id,\n  sum(points) as points\nfrom users u\ninner join results r on r.user = u.id\ngroup by r.user, r.tournament_id"
+    }
+  },
+  {
+    "id": "qr9m2vgd484a9or",
+    "name": "match_bets",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "obufx3oy",
+        "name": "match_id",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "v4sce7qii76p0jl",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "sudoqmtr",
+        "name": "home_per",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "rffujmdu",
+        "name": "away_per",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "eoob13y9",
+        "name": "tie_per",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "select \n  r.match as id,\n  r.match as match_id,\n  sum(case \n    when r.homeScore > r.awayScore  then 1\n    else 0\n    end\n  ) as home_per,\n  sum(case \n    when r.homeScore < r.awayScore  then 1\n    else 0\n    end\n  ) as away_per,\n  sum(case \n    when r.homeScore = r.awayScore  then 1\n    else 0\n    end\n  ) as tie_per\nfrom predictions r\ngroup by r.match"
+    }
+  },
+  {
+    "id": "aerykh5cycey5eq",
+    "name": "results",
+    "type": "view",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "koxn1w00",
+        "name": "user",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "rfabxa8t",
+        "name": "match_id",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "v4sce7qii76p0jl",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "hl7jwqn6",
+        "name": "tournament_id",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "a8upuky9dg8vff5",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "9nrbat5y",
+        "name": "p_home",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "akfpqhei",
+        "name": "p_away",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "zkpnr0vn",
+        "name": "home",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "bx6ziksf",
+        "name": "homeScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "xmflnaer",
+        "name": "away",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "urvejg9x",
+        "name": "awayScore",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "noDecimal": false
+        }
+      },
+      {
+        "system": false,
+        "id": "kltqhnpe",
+        "name": "prediction_id",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "d3f6aq6gcuo403s",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "1qmkbwdp",
+        "name": "startAtUtc",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": "",
+          "max": ""
+        }
+      },
+      {
+        "system": false,
+        "id": "rteyuryl",
+        "name": "points",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSize": 1
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {
+      "query": "SELECT \n  (row_number() over()) as id,\n  p.user,\n  m.id as match_id,\n  m.tournament as tournament_id,\n  p.homeScore as p_home,\n  p.awayScore as p_away,\n  m.home,\n  m.homeScore,\n  m.away,\n  m.awayScore,\n  p.id as prediction_id,\n  m.startAtUtc,\n  (case \n    when p.homeScore = m.homeScore and p.awayScore = m.awayScore  then 3\n    when p.homeScore > p.awayScore and m.homeScore > m.awayScore  then 1\n    when p.homeScore < p.awayScore and m.homeScore < m.awayScore  then 1\n    when p.homeScore = p.awayScore and m.homeScore = m.awayScore  then 1\n    else 0\n  end) as points\nFROM predictions p\nJOIN matches m on m.id = p.match\nwhere m.`startAtUtc` < datetime()"
     }
   },
   {
