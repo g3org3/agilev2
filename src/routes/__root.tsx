@@ -15,7 +15,7 @@ export const Route = createRootRoute({
   component: () => {
     return (
       <PersistQueryClientProvider
-        persistOptions={{ persister }}
+        persistOptions={{ persister, buster: Date.now().toString() }}
         client={queryClient}
       >
         <ChakraProvider theme={theme}>

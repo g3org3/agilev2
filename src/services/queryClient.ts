@@ -3,8 +3,8 @@ import { QueryClient } from '@tanstack/react-query'
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: Infinity,
-      gcTime: Infinity,
+      staleTime: 5 * 60_000,
+      gcTime: 10 * 60_000,
     },
   },
 })
