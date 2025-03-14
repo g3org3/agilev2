@@ -38,10 +38,10 @@ export const Route = createFileRoute('/')({
 
 const invalidateQueries = throttle(() => {
   queryClient.invalidateQueries({
-    queryKey: [Collections.SprintsView, 'get-all', 'sort-sprint-desc'],
+    queryKey: ['index', Collections.SprintsView],
   })
   queryClient.invalidateQueries({
-    queryKey: [Collections.SprintsLabelsView, 'get-all'],
+    queryKey: ['index', Collections.SprintsLabelsView],
   })
 }, 5000)
 
@@ -49,7 +49,7 @@ function Home() {
   const { project = 'compass' } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { data: rawsprints = [], isFetching: isFetchingSprint } = useQuery({
-    queryKey: [Collections.SprintsView, 'get-all', 'sort-sprint-desc'],
+    queryKey: ['index', Collections.SprintsView],
     queryFn: () =>
       pb
         .collection(Collections.SprintsView)
@@ -70,7 +70,7 @@ function Home() {
   }, [])
 
   const { data: sprintlabels = [], isFetching: isFetchingLabels } = useQuery({
-    queryKey: [Collections.SprintsLabelsView, 'get-all'],
+    queryKey: ['index', Collections.SprintsLabelsView],
     queryFn: () =>
       pb
         .collection(Collections.SprintsLabelsView)
@@ -145,6 +145,22 @@ function Home() {
 
     return { ...sprint, pseudo_done, percentage }
   })
+
+  useEffect(() => {
+    const callback = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        const sprintId = enhance_sprints[0].sprint
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId },
+        })
+      }
+    }
+    window.addEventListener('keydown', callback)
+    return () => {
+      window.removeEventListener('keydown', callback)
+    }
+  }, [enhance_sprints, navigate])
 
   const sprints_graph = enhance_sprints
     .filter((sprint) => !skipped_sprints.includes(sprint.sprint))

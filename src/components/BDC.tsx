@@ -24,7 +24,7 @@ type MyDatum = { date: string; points: number }
 
 export function BDC(props: Props) {
   const { data: staffing = [], isFetching: isLoading } = useQuery({
-    queryKey: [Collections.Staffing, props.sprintId],
+    queryKey: [props.sprintId, Collections.Staffing],
     queryFn: () =>
       pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
         filter: `sprint = '${props.sprintId}'`,
@@ -32,7 +32,7 @@ export function BDC(props: Props) {
   })
 
   const { data: last_sprint_points = [], isFetching: isLoading2 } = useQuery({
-    queryKey: [Collections.LatestSprintPointsView, props.sprintId],
+    queryKey: [props.sprintId, Collections.LatestSprintPointsView],
     queryFn: () =>
       pb
         .collection(Collections.LatestSprintPointsView)
@@ -46,10 +46,10 @@ export function BDC(props: Props) {
   useEffect(() => {
     const invalidate = throttle(() => {
       queryClient.invalidateQueries({
-        queryKey: [Collections.Staffing, props.sprintId],
+        queryKey: [props.sprintId, Collections.Staffing],
       })
       queryClient.invalidateQueries({
-        queryKey: [Collections.LatestSprintPointsView, props.sprintId],
+        queryKey: [props.sprintId, Collections.LatestSprintPointsView],
       })
     }, 5000)
 

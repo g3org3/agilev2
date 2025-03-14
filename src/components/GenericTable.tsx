@@ -27,27 +27,27 @@ export default function GenericTable<T>(props: {
       <Tbody>
         {props.rows.map((row) => {
           return (
-            /* @ts-expect-error */
+            /* @ts-expect-error to fix after */
             <Tr bg={row.inv_status === 'DONE' ? 'green.100' : 'unset'}>
               {headers.map((field) => {
                 return field === 'key' ? (
-                  <Td>
+                  <Td whiteSpace="nowrap">
                     <ChakraLink
                       target="_blank"
                       href={
                         'https://devopsjira.deutsche-boerse.com/browse/' +
-                        /* @ts-expect-error */
+                        /* @ts-expect-error to fix after*/
                         row[field]
                       }
                     >
                       <Text color="blue.500" fontWeight="bold">
-                        {/* @ts-expect-error */}
+                        {/* @ts-expect-error  to fix after*/}
                         {row[field]}
                       </Text>
                     </ChakraLink>
                   </Td>
                 ) : (
-                  //@ts-expect-error
+                  /* @ts-expect-error kasf */
                   <Td>{row[field]}</Td>
                 )
               })}
@@ -58,7 +58,7 @@ export default function GenericTable<T>(props: {
           <Td colSpan={4}></Td>
           <Td borderTop="2px dashed #aaa">total</Td>
           <Td borderTop="2px dashed #aaa">
-            {/** @ts-ignore */}
+            {/** @ts-expect-error the */}
             {props.rows.reduce((accum, x) => x.points + accum, 0)}
           </Td>
         </Tr>

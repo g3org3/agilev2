@@ -29,7 +29,6 @@ interface TreeNode {
 export default function DepGraph(props: Props) {
   const tickets = props.tickets || []
   const sgTickets = tickets.filter((x) => x.epic == props.track)
-  console.log({ sgTickets })
 
   const { edges, n } = useMemo(() => {
     const edges: Array<{ id: string; source: string; target: string }> = []

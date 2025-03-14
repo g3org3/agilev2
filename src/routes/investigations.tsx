@@ -187,7 +187,7 @@ function InvestigationsPage() {
                 <Table bg="white" rounded="md">
                   <Thead>
                     <Tr>
-                      <Th>key</Th>
+                      <Th whiteSpace="nowrap">key</Th>
                       <Th>sprint</Th>
                       <Th>inv</Th>
                       <Th>status</Th>
@@ -198,7 +198,7 @@ function InvestigationsPage() {
                   <Tbody>
                     {groupByInvestigations[name].map((ticket) => (
                       <Tr>
-                        <Td>
+                        <Td whiteSpace="nowrap">
                           <ChakraLink
                             target="_blank"
                             href={`https://devopsjira.deutsche-boerse.com/browse/${ticket.key}`}

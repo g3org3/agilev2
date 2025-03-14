@@ -21,9 +21,9 @@ interface Props {
 export default function Investigations(props: Props) {
   const { data: investigations = [], isFetching } = useQuery({
     queryKey: [
+      props.sprintId,
       Collections.Investigations,
       props.selectedDate,
-      props.sprintId,
       props.selectedDev,
     ],
     queryFn: () =>
@@ -44,9 +44,9 @@ export default function Investigations(props: Props) {
         const invalidate = throttle(() => {
           queryClient.invalidateQueries({
             queryKey: [
+              props.sprintId,
               Collections.Investigations,
               props.selectedDate,
-              props.sprintId,
               props.selectedDev,
             ],
           })

@@ -12,8 +12,21 @@ import { pb } from '@/services/pb'
 import { Login } from '@/components/Login'
 import { Logout } from './Logout'
 import { useIsFetching } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { Collections, UpdatesResponse } from '@/services/pocketbase-types'
+import { queryClient } from '@/services/queryClient'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    pb.collection(Collections.Updates).subscribe<UpdatesResponse>('*', (e) => {
+      queryClient.invalidateQueries({ queryKey: [e.record.sprint] })
+      queryClient.invalidateQueries({ queryKey: ['index'] })
+    })
+    return () => {
+      pb.collection(Collections.Updates).unsubscribe('*')
+    }
+  }, [])
+
   if (!pb.authStore.isValid) {
     return <Login />
   }

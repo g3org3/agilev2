@@ -36,11 +36,13 @@ function Daily() {
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
-    queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId],
-    queryFn: () => pb.collection(Collections.SprintDatesView)
-      .getFullList<SprintDatesViewResponse>({
-        filter: `sprint = '${sprintId}'`
-      })
+    queryKey: [sprintId, Collections.SprintDatesView],
+    queryFn() {
+      return pb.collection(Collections.SprintDatesView)
+        .getFullList<SprintDatesViewResponse>({
+          filter: `sprint = '${sprintId}'`
+        })
+    }
   })
 
   // to set the date if not present in the url
@@ -54,6 +56,64 @@ function Daily() {
     }
   }, [selectedDate, dates, sprintId, navigate])
 
+  useEffect(() => {
+    const callback = (e: KeyboardEvent) => {
+      if (e.key === 'q') {
+        navigate({
+          to: '/'
+        })
+        return
+      }
+      const i = dates.findIndex(x => x.date === selectedDate)
+      let nextDate = null
+      if (e.key === 'ArrowRight' || e.key === 'l') {
+        nextDate = dates[i + 1]
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'h') {
+        nextDate = dates[i - 1]
+      }
+      if (nextDate) {
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId },
+          search: (rest) => ({ ...rest, selectedDate: nextDate.date })
+        })
+      }
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        const num = Number(sprintId.split(' ')[1]) - 1
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId: `Sprint ${num}` }
+        })
+      }
+      if (e.key === 'ArrowUp' || e.key === 'k') {
+        const num = Number(sprintId.split(' ')[1]) + 1
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId: `Sprint ${num}` }
+        })
+      }
+      if (e.key === 'i') {
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId },
+          search: (rest) => ({ ...rest, viewInvestigations: !rest.viewInvestigations })
+        })
+      }
+      if (e.key === 's') {
+        navigate({
+          to: '/$sprintId/daily',
+          params: { sprintId },
+          search: (rest) => ({ ...rest, viewSummary: !viewSummary })
+        })
+      }
+    }
+    window.addEventListener('keydown', callback)
+    return () => {
+      window.removeEventListener('keydown', callback)
+    }
+  }, [dates, navigate, selectedDate, sprintId, viewSummary])
+
   const previous_day = useMemo(() => {
     const index = dates.map(date => date.date)
       .findIndex((date) => date === selectedDate)
@@ -64,7 +124,7 @@ function Daily() {
   const filter = `sprint = '${sprintId}' && date = '${selectedDate}'`
 
   const { data: full_tickets_hack = [], isFetching: isFetchingTickets } = useQuery({
-    queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
+    queryKey: [sprintId, Collections.Tickets, selectedDate, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets)
       .getFullList<TicketsResponse<string[], string[]>>({
         filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
@@ -76,7 +136,7 @@ function Daily() {
 
   const old_filter = `sprint = '${sprintId}' && date = '${previous_day}' && status != 'To Do'`
   const { data: old_tickets = [], isFetching: isFetchingOldTickets } = useQuery({
-    queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
+    queryKey: [sprintId, Collections.Tickets, 'old', previous_day, selectedDev],
     queryFn: () => pb.collection(Collections.Tickets)
       .getFullList<TicketsResponse<string[], string[]>>({
         filter: selectedDev ? old_filter + ` && owner = '${selectedDev}'` : old_filter,
@@ -86,7 +146,7 @@ function Daily() {
   })
 
   const { data: sprint } = useQuery({
-    queryKey: [Collections.SprintsView, 'get-one', sprintId],
+    queryKey: [sprintId, Collections.SprintsView],
     queryFn: () => pb.collection(Collections.SprintsView)
       .getOne<SprintsViewResponse<number, number, number, number>>(sprintId)
   })
@@ -94,13 +154,13 @@ function Daily() {
   useEffect(() => {
     const invalidate = throttle(() => {
       queryClient.invalidateQueries({
-        queryKey: [Collections.Tickets, 'get-by-sprint', sprintId, selectedDate, selectedDev],
+        queryKey: [sprintId, Collections.Tickets, selectedDate, selectedDev],
       })
       queryClient.invalidateQueries({
-        queryKey: [Collections.Tickets, 'old', 'get-by-sprint', sprintId, previous_day, selectedDev],
+        queryKey: [sprintId, Collections.Tickets, 'old', previous_day, selectedDev],
       })
       queryClient.invalidateQueries({
-        queryKey: [Collections.SprintsView, 'get-one', sprintId],
+        queryKey: [sprintId, Collections.SprintsView],
       })
     }, 5000)
 
@@ -285,6 +345,7 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
 
 function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<string[], string[]>[], old_tickets: TicketsResponse[] }) {
   const { sprintId } = Route.useParams()
+  const { viewSummary = true } = Route.useSearch()
 
   return (
     <Table size="sm" boxShadow="md" background="white" rounded="lg">
@@ -293,9 +354,11 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
           <Th color="white" p="2">Ticket</Th>
           <Th color="white">Owner</Th>
           <Th display={{ base: 'none', md: 'table-cell' }} color="white">Summary</Th>
-          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Labels</Th>
-          <Th display={{ base: 'none', md: 'table-cell' }} color="white">Epic</Th>
-          <Th display={{ base: 'none', md: 'table-cell' }} color="white">BlockedBy</Th>
+          {!viewSummary && <>
+            <Th display={{ base: 'none', md: 'table-cell' }} color="white">Labels</Th>
+            <Th display={{ base: 'none', md: 'table-cell' }} color="white">Epic</Th>
+            <Th display={{ base: 'none', md: 'table-cell' }} color="white">BlockedBy</Th>
+          </>}
           <Th color="white">Status</Th>
           <Th color="white">Points</Th>
           <Th display={{ base: 'none', md: 'table-cell' }} color="white">Warning</Th>
@@ -320,7 +383,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
 
           return (
             <Tr background={color} key={ticket.key}>
-              <Td>
+              <Td whiteSpace="nowrap">
                 <ChakraLink
                   target="_blank"
                   href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.key}
@@ -330,41 +393,43 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
               </Td>
               <Td><Avatar title={ticket.owner} size="sm" name={ticket.owner.replace(' EXT', '')} /></Td>
               <Td display={{ base: 'none', md: 'table-cell' }} title={ticket.summary}>{ticket.summary.substring(0, 110)}...</Td>
-              <Td display={{ base: 'none', md: 'table-cell' }}>{ticket.labels?.join(', ')}</Td>
-              <Td display={{ base: 'none', md: 'table-cell' }}>
-                <ChakraLink
-                  target="_blank"
-                  href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.epic}
-                >
-                  {ticket.epic_name}
-                </ChakraLink>
-                {ticket.epic_name && <Link
-                  to="/$sprintId/daily"
-                  params={{ sprintId }}
-                  search={(params) => ({ ...params, depGraph: ticket.epic })}
-                >
-                  <Button
-                    variant="ghost"
-                    size="sm"
+              {!viewSummary && <>
+                <Td display={{ base: 'none', md: 'table-cell' }}>{ticket.labels?.join(', ')}</Td>
+                <Td display={{ base: 'none', md: 'table-cell' }}>
+                  <ChakraLink
+                    target="_blank"
+                    href={"https://devopsjira.deutsche-boerse.com/browse/" + ticket.epic}
                   >
-                    dp
-                  </Button>
-                </Link>}
-              </Td>
-              <Td display={{ base: 'none', md: 'table-cell' }}>
-                <Flex gap="2">
-                  {ticket.parents?.map(key => (
-                    <ChakraLink
-                      key={key}
-                      target="_blank"
-                      href={"https://devopsjira.deutsche-boerse.com/browse/" + key}
+                    {ticket.epic_name}
+                  </ChakraLink>
+                  {ticket.epic_name && <Link
+                    to="/$sprintId/daily"
+                    params={{ sprintId }}
+                    search={(params) => ({ ...params, depGraph: ticket.epic })}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
                     >
-                      {key}
-                    </ChakraLink>
-                  ))}
-                </Flex>
-              </Td>
-              <Td>{ticket.status}</Td>
+                      dp
+                    </Button>
+                  </Link>}
+                </Td>
+                <Td display={{ base: 'none', md: 'table-cell' }}>
+                  <Flex gap="2">
+                    {ticket.parents?.map(key => (
+                      <ChakraLink
+                        key={key}
+                        target="_blank"
+                        href={"https://devopsjira.deutsche-boerse.com/browse/" + key}
+                      >
+                        {key}
+                      </ChakraLink>
+                    ))}
+                  </Flex>
+                </Td>
+              </>}
+              <Td whiteSpace="nowrap">{ticket.status}</Td>
               <Td>{ticket.points}</Td>
               <Td display={{ base: 'none', md: 'table-cell' }}>{warning}</Td>
             </Tr>
@@ -380,7 +445,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
   const { selectedDate, selectedDev } = Route.useSearch()
 
   const { data: devs = [], isFetching: isFetchingDevs } = useQuery({
-    queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
+    queryKey: [sprintId, Collections.SprintDevsView],
     queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
       filter: `sprint = '${sprintId}'`,
       sort: 'dev'
@@ -388,7 +453,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
   })
 
   const { data: staffing = [], isFetching: isFetchingStaffing } = useQuery({
-    queryKey: [Collections.Staffing, sprintId, selectedDate],
+    queryKey: [sprintId, Collections.Staffing, selectedDate],
     queryFn: () => pb.collection(Collections.Staffing).getFullList<StaffingResponse>({
       filter: `sprint = '${sprintId}' && utc_date < '${selectedDate} 00:00:00.000Z'`,
     }),
@@ -508,7 +573,7 @@ function DateBtns() {
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
-    queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId],
+    queryKey: [sprintId, Collections.SprintDatesView],
     queryFn: () => pb.collection(Collections.SprintDatesView).getFullList<SprintDatesViewResponse>({
       filter: `sprint = '${sprintId}'`
     })
@@ -516,9 +581,9 @@ function DateBtns() {
 
   useEffect(() => {
     const invalidate = throttle(() => {
-      queryClient.invalidateQueries({ queryKey: [Collections.Staffing, sprintId, selectedDate] })
-      queryClient.invalidateQueries({ queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId] })
-      queryClient.invalidateQueries({ queryKey: [Collections.SprintDatesView, 'get-by-sprint', sprintId] })
+      queryClient.invalidateQueries({ queryKey: [sprintId, Collections.Staffing, selectedDate] })
+      queryClient.invalidateQueries({ queryKey: [sprintId, Collections.SprintDevsView] })
+      queryClient.invalidateQueries({ queryKey: [sprintId, Collections.SprintDatesView] })
     }, 5000)
     pb.collection(Collections.Staffing).subscribe<StaffingResponse>('*', (e) => {
       if (e.record.sprint === sprintId) {
@@ -560,9 +625,9 @@ function DevsBtns() {
   const navigate = Route.useNavigate()
 
   const { data: devs = [] } = useQuery({
-    queryKey: [Collections.SprintDevsView, 'get-by-sprint', sprintId],
+    queryKey: [sprintId, Collections.SprintDevsView],
     queryFn: () => pb.collection(Collections.SprintDevsView).getFullList<SprintDevsViewResponse>({
-      filter: `sprint = '${sprintId}'`,
+      filter: `sprint='${sprintId}'`,
       sort: 'dev',
     }),
   })
