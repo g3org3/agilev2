@@ -1,6 +1,6 @@
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 
-const baseUrl = 'http://localhost:5174'
+const baseUrl = 'https://auth.jorgeadolfo.com'
 
 export async function registerPasskey(email?: string) {
   if (!email) throw new Error('Email not found')
