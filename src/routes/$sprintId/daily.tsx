@@ -1,4 +1,19 @@
-import { Link as ChakraLink, Avatar, Button, Flex, Heading, Spacer, Table, Tbody, Td, Th, Thead, Tr, Select, Skeleton } from '@chakra-ui/react'
+import {
+  Link as ChakraLink,
+  Avatar,
+  Button,
+  Flex,
+  Heading,
+  Spacer,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  Select,
+  Skeleton
+} from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
@@ -7,7 +22,14 @@ import { DateTime } from 'luxon'
 
 import { getNextDate } from '@/services/dates'
 import { pb } from '@/services/pb'
-import { Collections, SprintDatesViewResponse, SprintDevsViewResponse, SprintsViewResponse, StaffingResponse, TicketsResponse } from '@/services/pocketbase-types'
+import {
+  Collections,
+  SprintDatesViewResponse,
+  SprintDevsViewResponse,
+  SprintsViewResponse,
+  StaffingResponse,
+  TicketsResponse
+} from '@/services/pocketbase-types'
 import DepGraph from '@/components/DepGraph'
 import { BDC } from '@/components/BDC'
 import Investigations from '@/components/Investigations'
@@ -32,7 +54,15 @@ export const Route = createFileRoute('/$sprintId/daily')({
 
 function Daily() {
   const { sprintId } = Route.useParams()
-  const { selectedDate, selectedDev = '', view = 'table', filterBy, viewSummary = true, depGraph, viewInvestigations } = Route.useSearch()
+  const {
+    selectedDate,
+    selectedDev = '',
+    view = 'table',
+    filterBy,
+    viewSummary = true,
+    depGraph,
+    viewInvestigations
+  } = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: dates = [] } = useQuery({
@@ -174,24 +204,28 @@ function Daily() {
     }
   }, [previous_day, selectedDate, selectedDev, sprintId])
 
-  let tickets_or_cache = tickets.length > 0 ? tickets : old_tickets
-  if (filterBy === 'problems') {
-    tickets_or_cache = tickets_or_cache.filter((ticket) => {
-      const labels = ticket.labels?.join(' ') || ''
-      const problems = ['ko', 'return', 'wrong', 'estimated', 'missed']
-      return problems.filter(problem => labels.includes(problem)).length > 0
-    })
-  }
+  const tickets_or_cache = useMemo(() => {
+    let _tickets = tickets.length > 0 ? tickets : old_tickets
+    if (filterBy === 'problems') {
+      _tickets = _tickets.filter((ticket) => {
+        const labels = ticket.labels?.join(' ') || ''
+        const problems = ['ko', 'return', 'wrong', 'estimated', 'missed']
+        return problems.filter(problem => labels.includes(problem)).length > 0
+      })
+    }
 
-  if (filterBy === 'problem-solving') {
-    tickets_or_cache = tickets_or_cache.filter((ticket) => {
-      const warning = ['Done', 'In Test'].includes(ticket.status)
-        ? null
-        : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
+    if (filterBy === 'problem-solving') {
+      _tickets = _tickets.filter((ticket) => {
+        const warning = ['Done', 'In Test'].includes(ticket.status)
+          ? null
+          : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
 
-      return !!warning;
-    })
-  }
+        return !!warning;
+      })
+    }
+
+    return _tickets
+  }, [old_tickets, tickets, filterBy])
 
   return (
     <>
@@ -260,7 +294,7 @@ function Daily() {
           track={depGraph}
           tickets={full_tickets_hack} />
       ) : (
-        <Flex gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
+        <Flex overflow="auto" gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
           {viewSummary ? (
             <Flex flexDir="column" gap={4} position="relative">
               <DaySummary tickets={tickets_or_cache} />
@@ -268,7 +302,7 @@ function Daily() {
               <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
             </Flex>
           ) : null}
-          <Flex flexDir="column" flex="1" overflow="auto" paddingBottom="4" position="relative">
+          <Flex flexDir="column" flex="1" height="100%" overflow="auto" paddingBottom="4" paddingLeft="2" position="relative">
             {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="100%" position="absolute" zIndex="10" opacity="0.8"></Flex>}
             {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
             {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
@@ -281,7 +315,7 @@ function Daily() {
 
 function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], old_tickets: TicketsResponse[] }) {
   return (
-    <Flex gap="4" flex="1" py="5" overflow="auto" minW="1200px">
+    <Flex gap="4" flex="1" paddingBottom="5" height="100%" overflow="auto" minW="1200px">
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='To Develop' label='Daily' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Progress' label='Doing' />
       <TrelloColumn tickets={tickets} old_tickets={old_tickets} status='In Review' label='Code Review' />
