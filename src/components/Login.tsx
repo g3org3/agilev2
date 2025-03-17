@@ -70,79 +70,84 @@ export function Login() {
   }
 
   return (
-    <Flex alignItems="center" flexDirection="column" paddingTop="7%" gap={3}>
-      <Flex
-        border="1px solid black"
-        shadow="md"
-        py={10}
-        px={20}
-        borderColor="gray.200"
-        flexDir="column"
-        rounded="md"
-        gap={4}
-      >
-        <h1>
-          <Text letterSpacing="5px" fontSize="xxx-large">
-            Agile App
-          </Text>
-        </h1>
-        <Button
-          leftIcon={<GoogleIcon />}
-          _hover={{ bg: 'blue.500' }}
-          _active={{ bg: 'blue.600' }}
-          bg="blue.400"
-          color="white"
-          onClick={onLogin('google')}
-        >
-          Login with Google
-        </Button>
-        <Flex alignItems="center" gap="2">
-          <hr style={{ flex: 1 }} />
-          or
-          <hr style={{ flex: 1 }} />
-        </Flex>
-        <Button
-          leftIcon={<GithubIcon />}
-          _hover={{ bg: 'gray.600' }}
-          _active={{ bg: 'gray.500' }}
-          bg="black"
-          color="white"
-          onClick={onLogin('github')}
-        >
-          Login with Github
-        </Button>
-        {isPassKeyAvailable && (
-          <>
-            <Flex alignItems="center" gap="2">
-              <hr style={{ flex: 1 }} />
-              or
-              <hr style={{ flex: 1 }} />
-            </Flex>
-            <form onSubmit={onAuthPasskey}>
-              <Flex>
-                <Input
-                  type="text"
-                  id="username"
-                  name="username"
-                  placeholder="Email"
-                  autoComplete="username webauthn"
-                  borderRightRadius="none"
-                />
-                <Button
-                  borderLeftRadius="none"
-                  bg="purple.600"
-                  color="white"
-                  leftIcon={<PassKeyIcon />}
-                  name="login"
-                  px="10"
-                  type="submit"
-                >
-                  Login PassKey
-                </Button>
+    <Flex h="100dvh">
+      <Flex display={{ base: 'none', lg: 'flex' }} bg="black" flex="1"></Flex>
+      <Flex flex="1" alignItems="center" justifyContent="center">
+        <Flex flexDir="column" gap={4} position="relative" top="-10%">
+          <h1>
+            <Text
+              letterSpacing="8px"
+              fontSize="xxx-large"
+              bgGradient="linear(to-l, #7928CA, #FF0080)"
+              bgClip="text"
+            >
+              Agile App
+            </Text>
+          </h1>
+          <Button
+            leftIcon={<GoogleIcon />}
+            _hover={{ bg: 'blue.500' }}
+            _active={{ bg: 'blue.600' }}
+            bg="blue.400"
+            color="white"
+            onClick={onLogin('google')}
+          >
+            Login with Google
+          </Button>
+          <Flex alignItems="center" gap="2">
+            <hr style={{ flex: 1 }} />
+            or
+            <hr style={{ flex: 1 }} />
+          </Flex>
+          <Button
+            leftIcon={<GithubIcon />}
+            _hover={{ bg: 'gray.600' }}
+            _active={{ bg: 'gray.500' }}
+            bg="black"
+            color="white"
+            onClick={onLogin('github')}
+          >
+            Login with Github
+          </Button>
+          {isPassKeyAvailable && (
+            <>
+              <Flex alignItems="center" gap="2">
+                <hr style={{ flex: 1 }} />
+                or
+                <hr style={{ flex: 1 }} />
               </Flex>
-            </form>
-          </>
-        )}
+              <form onSubmit={onAuthPasskey}>
+                <Flex>
+                  <Input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Email"
+                    autoComplete="username webauthn"
+                    borderRightRadius="none"
+                  />
+                  <Button
+                    _hover={{
+                      bgGradient: 'linear(to-l, #7928CA, #7928CA)',
+                    }}
+                    _active={{
+                      bgGradient: 'linear(to-l, #FF0080, #FF0080)',
+                    }}
+                    borderLeftRadius="none"
+                    bgGradient="linear(to-l, #7928CA, #FF0080)"
+                    color="white"
+                    leftIcon={<PassKeyIcon />}
+                    name="login"
+                    px="10"
+                    type="submit"
+                  >
+                    Login PassKey
+                  </Button>
+                </Flex>
+              </form>
+            </>
+          )}
+        </Flex>
       </Flex>
     </Flex>
   )

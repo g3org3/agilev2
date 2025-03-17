@@ -3,16 +3,20 @@ import { queryClient } from '@/services/queryClient'
 import {
   Avatar,
   Button,
+  Flex,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Text,
   useToast,
 } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { registerPasskey } from '@/services/authn'
 import { useMutation } from '@tanstack/react-query'
 import { UsersResponse } from '@/services/pocketbase-types'
+import PassKeyIcon from '@/icons/PassKeyIcon'
+import LogoutIcon from '@/icons/LogoutIcon'
 
 export function Logout() {
   const toast = useToast()
@@ -55,11 +59,23 @@ export function Logout() {
       </MenuButton>
       <MenuList>
         {pb.authStore.model && (
-          <MenuItem onClick={() => mutate(pb.authStore.model as UsersResponse)}>
-            Setup passkey
+          <MenuItem
+            icon={<PassKeyIcon />}
+            onClick={() => mutate(pb.authStore.model as UsersResponse)}
+          >
+            <Flex>
+              <Text bgGradient="linear(to-l, #7928CA, #FF0080)" bgClip="text">
+                Setup Passkey&nbsp;
+              </Text>
+              <Text position="relative" fontSize="x-small" fontWeight="bold">
+                beta
+              </Text>
+            </Flex>
           </MenuItem>
         )}
-        <MenuItem onClick={onLogout}>Logout</MenuItem>
+        <MenuItem icon={<LogoutIcon />} onClick={onLogout}>
+          Logout
+        </MenuItem>
       </MenuList>
     </Menu>
   )
