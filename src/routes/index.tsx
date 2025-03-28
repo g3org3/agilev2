@@ -114,8 +114,8 @@ function Home() {
   const skipped_sprints = [
     'Sprint 110',
     'Sprint 111',
-    'Sprint 146',
-    'Datafeed - Sprint 146',
+    'Sprint 147',
+    'Datafeed - Sprint 147',
     'Datafeed - Sprint 1',
     'Datafeed - Sprint 2',
     'Datafeed - Sprint 3',
