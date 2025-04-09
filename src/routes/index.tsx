@@ -13,6 +13,7 @@ import {
   Flex,
   Select,
   Skeleton,
+  Spacer,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -205,6 +206,7 @@ function Home() {
         <Table background="white" size="sm" boxShadow="md" rounded="md">
           <Thead>
             <Tr background="teal.600">
+              <Th color="white">Actions</Th>
               <Th color="white">Sprint</Th>
               <Th color="white" display={{ base: 'none', md: 'table-cell' }}>
                 Total Points
@@ -227,6 +229,16 @@ function Home() {
               ))}
             {enhance_sprints.map((sprint) => (
               <Tr key={sprint.id}>
+                <Td>
+                  <Link
+                    to="/$sprintId/staffing"
+                    params={{ sprintId: sprint.id }}
+                  >
+                    <Button variant="outline" size={{ base: 'xs', md: 'sm' }}>
+                      staff
+                    </Button>
+                  </Link>
+                </Td>
                 <Td>{sprint.id}</Td>
                 <Td display={{ base: 'none', md: 'table-cell' }}>
                   {sprint.tbd_points?.toFixed(1)}
