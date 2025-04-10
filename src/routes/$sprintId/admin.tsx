@@ -1,4 +1,5 @@
-import { Button, Flex, Input } from '@chakra-ui/react'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
 import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
 import { FormEvent, useMemo, useState } from 'react'
@@ -13,7 +14,7 @@ export const Route = createFileRoute('/$sprintId/admin')({
 function getDates(startAt: string, endAt: string): string[] {
   // should return a list of dates in ISO string from startAt to endAt included.
   const dates: string[] = []
-  let currentDate = new Date(startAt)
+  const currentDate = new Date(startAt)
   while (currentDate <= new Date(endAt)) {
     // should skip if its saturday or sunday
     if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
@@ -32,7 +33,7 @@ function onSubmit<T>(schema: z.ZodType<T>, cb: (payload: T) => void) {
     // @ts-ignore
     const data = new FormData(e.target)
     const payload: Record<string, string> = {}
-    for (let [key, value] of data) {
+    for (const [key, value] of data) {
       payload[key] = value.toString()
     }
     const safe = schema.parse(payload)
@@ -41,7 +42,7 @@ function onSubmit<T>(schema: z.ZodType<T>, cb: (payload: T) => void) {
   }
 }
 
-export async function upsertStaffing(params: { sprint: string; staffing: StaffingRecord[] }) {
+async function upsertStaffing(params: { sprint: string; staffing: StaffingRecord[] }) {
   const { sprint, staffing } = params
   const { items } = await pb
     .collection(Collections.Staffing)
@@ -58,6 +59,7 @@ export async function upsertStaffing(params: { sprint: string; staffing: Staffin
 }
 
 function Admin() {
+  const bg = useColorModeValue('white', 'gray.700')
   const { sprintId } = Route.useParams()
   const [devs, setDevs] = useState<string[]>([])
   const [startAt, setStartAt] = useState<string>('')
@@ -96,7 +98,7 @@ function Admin() {
   }, [startAt, endAt])
 
   return (
-    <Flex flexDir="column" bg="white" boxShadow="md" p="5" w="800px" margin="0 auto" gap={4}>
+    <Flex flexDir="column" bg={bg} boxShadow="md" p="5" w="800px" margin="0 auto" gap={4}>
       <h1>AdminStaff</h1>
       <form onSubmit={onDevSubmit}>
         <Flex gap={2}>

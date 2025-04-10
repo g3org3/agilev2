@@ -1,5 +1,5 @@
 import Flow from './FLow'
-import { Flex } from '@chakra-ui/react'
+import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { TicketsResponse } from '@/services/pocketbase-types'
 import { useMemo } from 'react'
 
@@ -27,6 +27,7 @@ interface TreeNode {
 }
 
 export default function DepGraph(props: Props) {
+  const bg = useColorModeValue('white', 'gray.700')
   const tickets = props.tickets || []
   const sgTickets = tickets.filter((x) => x.epic == props.track)
 
