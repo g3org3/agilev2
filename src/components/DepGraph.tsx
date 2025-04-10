@@ -27,7 +27,6 @@ interface TreeNode {
 }
 
 export default function DepGraph(props: Props) {
-  const bg = useColorModeValue('white', 'gray.700')
   const tickets = props.tickets || []
   const sgTickets = tickets.filter((x) => x.epic == props.track)
 

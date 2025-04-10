@@ -13,7 +13,6 @@ import {
   Flex,
   Select,
   Skeleton,
-  Spacer,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
