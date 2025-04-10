@@ -11,6 +11,7 @@ import {
   Input,
   Select,
   Button,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { FormEventHandler, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -30,6 +31,7 @@ export const Route = createFileRoute('/investigations')({
 })
 
 function InvestigationsPage() {
+  const bg = useColorModeValue('white', 'gray.700')
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [selectedDev, setSelectedDev] = useState('')
@@ -119,7 +121,7 @@ function InvestigationsPage() {
           <Select
             defaultValue={selectedDev}
             name="dev"
-            bg="white"
+            bg={bg}
             maxWidth="400px"
             onChange={(e) => setSelectedDev(e.target.value)}
           >
@@ -132,7 +134,7 @@ function InvestigationsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             name="search"
-            bg="white"
+            bg={bg}
             placeholder="search"
           />
         </Flex>
@@ -174,17 +176,11 @@ function InvestigationsPage() {
               rounded="md"
               borderTop={isOpen ? 'unset' : '1px solid #ccc'}
             >
-              <Flex
-                bg="white"
-                fontWeight="bold"
-                fontSize="x-large"
-                px={2}
-                py={1}
-              >
+              <Flex bg={bg} fontWeight="bold" fontSize="x-large" px={2} py={1}>
                 {name}
               </Flex>
               {isOpen && (
-                <Table bg="white" rounded="md">
+                <Table bg={bg} rounded="md">
                   <Thead>
                     <Tr>
                       <Th whiteSpace="nowrap">key</Th>

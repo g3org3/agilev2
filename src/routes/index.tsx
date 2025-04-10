@@ -14,6 +14,7 @@ import {
   Select,
   Skeleton,
   Spacer,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -47,6 +48,9 @@ const invalidateQueries = throttle(() => {
 }, 5000)
 
 function Home() {
+  const bg = useColorModeValue('white', 'gray.700')
+  const bgHighlighted = useColorModeValue('blue.50', 'gray.600')
+
   const { project = 'compass' } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { data: rawsprints = [], isFetching: isFetchingSprint } = useQuery({
@@ -173,14 +177,14 @@ function Home() {
       <Container maxW="container.xl" display="flex" flexDir="column" gap="4">
         <Heading fontWeight="regular">Sprints</Heading>
         <Flex gap="4" flexDirection={{ base: 'column', md: 'row' }}>
-          <Flex bg="white" boxShadow="lg" rounded="md" flex="1" height="324px">
+          <Flex bg={bg} boxShadow="lg" rounded="md" flex="1" height="324px">
             {!isFetchingLabels ? (
               <ProblemGraph problems={problems} />
             ) : (
               <Skeleton height="324px" width="100%" />
             )}
           </Flex>
-          <Flex bg="white" boxShadow="lg" rounded="md" flex="1" height="324px">
+          <Flex bg={bg} boxShadow="lg" rounded="md" flex="1" height="324px">
             {!isFetchingSprint ? (
               <SprintGraph sprints={sprints_graph} />
             ) : (
@@ -203,7 +207,7 @@ function Home() {
           <option value="compass">Compass</option>
           <option value="datafeed">Data Feed</option>
         </Select>
-        <Table background="white" size="sm" boxShadow="md" rounded="md">
+        <Table background={bg} size="sm" boxShadow="md" rounded="md">
           <Thead>
             <Tr background="teal.600">
               <Th color="white">Actions</Th>
@@ -227,14 +231,23 @@ function Home() {
                   </Td>
                 </Tr>
               ))}
-            {enhance_sprints.map((sprint) => (
-              <Tr key={sprint.id}>
+            {enhance_sprints.map((sprint, index) => (
+              <Tr
+                key={sprint.id}
+                height={index === 0 ? '100px' : undefined}
+                bg={index === 0 ? bgHighlighted : undefined}
+              >
                 <Td>
                   <Link
                     to="/$sprintId/staffing"
                     params={{ sprintId: sprint.id }}
                   >
-                    <Button variant="outline" size={{ base: 'xs', md: 'sm' }}>
+                    <Button
+                      leftIcon={<>👀</>}
+                      variant="outline"
+                      bg={index === 0 ? bg : undefined}
+                      size={{ base: 'xs', md: index === 0 ? 'md' : 'sm' }}
+                    >
                       staff
                     </Button>
                   </Link>
@@ -263,7 +276,15 @@ function Home() {
                 </Td>
                 <Td>
                   <Link to="/$sprintId/daily" params={{ sprintId: sprint.id }}>
-                    <Button size={{ base: 'xs', md: 'sm' }}>view</Button>
+                    <Button
+                      bg={index === 0 ? bg : undefined}
+                      variant={index === 0 ? undefined : 'ghost'}
+                      leftIcon={<>☀️</>}
+                      boxShadow={index === 0 ? 'md' : undefined}
+                      size={{ base: 'xs', md: index === 0 ? 'md' : 'sm' }}
+                    >
+                      daily
+                    </Button>
                   </Link>
                 </Td>
               </Tr>

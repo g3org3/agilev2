@@ -5,6 +5,7 @@ import {
   Button,
   Spacer,
   CircularProgress,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
 
@@ -17,6 +18,7 @@ import { Collections, UpdatesResponse } from '@/services/pocketbase-types'
 import { queryClient } from '@/services/queryClient'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const bg = useColorModeValue('whitesmoke', 'gray.800')
   useEffect(() => {
     pb.collection(Collections.Updates).subscribe<UpdatesResponse>('*', (e) => {
       queryClient.invalidateQueries({ queryKey: [e.record.sprint] })
@@ -32,7 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Flex flexDir="column" h="100dvh" background="whitesmoke" overflowY="auto">
+    <Flex flexDir="column" h="100dvh" background={bg} overflowY="auto">
       <Navbar />
       <Container
         gap="3"
@@ -56,10 +58,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function Navbar() {
+  const bg = useColorModeValue('white', 'gray.700')
   const isFetching = useIsFetching()
 
   return (
-    <Flex background="white" boxShadow="md" p="2" zIndex="1">
+    <Flex background={bg} boxShadow="md" p="2" zIndex="1">
       <Container maxW="container.2xl">
         <Flex>
           <Link to="/">

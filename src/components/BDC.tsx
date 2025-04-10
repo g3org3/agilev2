@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { AxisOptions, Chart } from 'react-charts'
 
 import {
@@ -23,6 +23,7 @@ interface Props {
 type MyDatum = { date: string; points: number }
 
 export function BDC(props: Props) {
+  const bg = useColorModeValue('white', 'gray.700')
   const { data: staffing = [], isFetching: isLoading } = useQuery({
     queryKey: [props.sprintId, Collections.Staffing],
     queryFn: () =>
@@ -147,7 +148,7 @@ export function BDC(props: Props) {
   ]
 
   return (
-    <Flex flexDir="column" bg="white" boxShadow="md" rounded="md">
+    <Flex flexDir="column" bg={bg} boxShadow="md" rounded="md">
       <Text pl={5} fontSize="x-large">
         Burndown Chart
       </Text>

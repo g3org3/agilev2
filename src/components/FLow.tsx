@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // import { useCallback } from 'react';
 import ReactFlow, {
   // MiniMap,
@@ -11,7 +13,7 @@ import ReactFlow, {
 } from 'reactflow'
 
 import 'reactflow/dist/style.css'
-import { Flex } from '@chakra-ui/react'
+import { Flex, useColorModeValue } from '@chakra-ui/react'
 
 // const initialNodes = [
 //   { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
@@ -31,6 +33,7 @@ interface Props {
 }
 
 function CustomNode(props: Props) {
+  const bg = useColorModeValue('white', 'gray.700')
   const colorsByStatus = {
     Done: 'green.400',
     'In Test': 'green.200',
@@ -44,11 +47,19 @@ function CustomNode(props: Props) {
       target="_blank"
       href={`https://devopsjira.deutsche-boerse.com/browse/${props.data.label}`}
     >
-      <Flex p={3} rounded="md" boxShadow="md" flexDirection="column" bg={colorsByStatus[props.data.status]}>
-        <Flex bg="white" rounded="md" justifyContent="center">{props.id}</Flex>
+      <Flex
+        p={3}
+        rounded="md"
+        boxShadow="md"
+        flexDirection="column"
+        bg={colorsByStatus[props.data.status]}
+      >
+        <Flex bg={bg} rounded="md" justifyContent="center">
+          {props.id}
+        </Flex>
         <p>{props.data.owner}</p>
         <p>{props.data.status}</p>
-        <Flex bg="white" rounded="full" alignSelf="flex-start" px={2}>
+        <Flex bg={bg} rounded="full" alignSelf="flex-start" px={2}>
           {props.data.points}
         </Flex>
         <Handle type="source" position={Position.Bottom} />
@@ -62,7 +73,7 @@ const nodeTypes = {
   custom: CustomNode,
 }
 
-function Flow(props: { nodes: any[]; edges: any[] }) {
+function Flow(props: { nodes: unknown[]; edges: unknown[] }) {
   // @ts-ignore
   const [nodes, setNodes, onNodesChange] = useNodesState(props.nodes)
   // @ts-ignore

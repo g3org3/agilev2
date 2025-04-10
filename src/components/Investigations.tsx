@@ -1,4 +1,4 @@
-import { Flex, Skeleton } from '@chakra-ui/react'
+import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 
 import { pb } from '@/services/pb'
@@ -19,6 +19,7 @@ interface Props {
 }
 
 export default function Investigations(props: Props) {
+  const bg = useColorModeValue('white', 'gray.700')
   const { data: investigations = [], isFetching } = useQuery({
     queryKey: [
       props.sprintId,
@@ -72,7 +73,7 @@ export default function Investigations(props: Props) {
   }
 
   return (
-    <Flex bg="white" boxShadow="md" rounded="md" flexDir="column">
+    <Flex bg={bg} boxShadow="md" rounded="md" flexDir="column">
       <GenericTable
         rows={investigations}
         headers={['key', 'inv_status', 'owner', 'name', 'status', 'points']}

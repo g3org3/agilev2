@@ -12,7 +12,9 @@ import {
   Thead,
   Tr,
   Select,
-  Skeleton
+  Skeleton,
+  Text,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -36,6 +38,7 @@ import Investigations from '@/components/Investigations'
 import { sortByStatus } from '@/services/sort'
 import { throttle } from '@/services/throttle'
 import { queryClient } from '@/services/queryClient'
+import { ButtonLink } from '@/components/ButtonLink'
 
 const filterBySchema = z.enum(['problems', 'problem-solving', '']).nullish()
 
@@ -53,6 +56,7 @@ export const Route = createFileRoute('/$sprintId/daily')({
 })
 
 function Daily() {
+  const bg = useColorModeValue('white', 'gray.700')
   const { sprintId } = Route.useParams()
   const {
     selectedDate,
@@ -233,12 +237,15 @@ function Daily() {
         <Flex
           gap="2"
           flexDir={{ base: "column", md: "row" }}
-          bg="white"
+          bg={bg}
           alignItems={{ base: 'unset', md: "center" }}
           boxShadow="md"
           rounded="lg"
           p="3">
           <Flex alignItems="center" gap="2">
+            <ButtonLink>
+              <Text fontSize="xx-large">◀️ </Text>
+            </ButtonLink>
             {sprintId} | <small>{sprint?.done_points} / {sprint?.tbd_points} points</small>
           </Flex>
           <Link
@@ -285,30 +292,33 @@ function Daily() {
             </Button>
           </Link>
         </Flex>
-      </Heading>
-      {viewInvestigations && selectedDate && <Investigations sprintId={sprintId} selectedDate={selectedDate} selectedDev={selectedDev} />}
-      {depGraph ? (
-        <DepGraph
-          isLoading={isFetchingTickets || isFetchingOldTickets}
-          selectedDate={selectedDate}
-          track={depGraph}
-          tickets={full_tickets_hack} />
-      ) : (
-        <Flex overflow="auto" gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
-          {viewSummary ? (
-            <Flex flexDir="column" gap={4} position="relative">
-              <DaySummary tickets={tickets_or_cache} />
-              {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="436px" position="absolute" bottom="0" zIndex="10" opacity="0.8"></Flex>}
-              <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
+      </Heading >
+      {viewInvestigations && selectedDate && <Investigations sprintId={sprintId} selectedDate={selectedDate} selectedDev={selectedDev} />
+      }
+      {
+        depGraph ? (
+          <DepGraph
+            isLoading={isFetchingTickets || isFetchingOldTickets}
+            selectedDate={selectedDate}
+            track={depGraph}
+            tickets={full_tickets_hack} />
+        ) : (
+          <Flex overflow="auto" gap="2" alignItems={{ base: 'unset', md: "flex-start" }} flex="1" flexDir={{ base: "column", md: "row" }}>
+            {viewSummary ? (
+              <Flex flexDir="column" gap={4} position="relative">
+                <DaySummary tickets={tickets_or_cache} />
+                {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="436px" position="absolute" bottom="0" zIndex="10" opacity="0.8"></Flex>}
+                <BDC sprintId={sprintId} tickets={tickets_or_cache} tbd_points={sprint?.tbd_points} />
+              </Flex>
+            ) : null}
+            <Flex flexDir="column" flex="1" height="100%" overflow="auto" paddingBottom="4" paddingLeft="2" position="relative">
+              {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="100%" position="absolute" zIndex="10" opacity="0.8"></Flex>}
+              {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
+              {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
             </Flex>
-          ) : null}
-          <Flex flexDir="column" flex="1" height="100%" overflow="auto" paddingBottom="4" paddingLeft="2" position="relative">
-            {(isFetchingTickets || isFetchingOldTickets) && <Flex background="gray.100" w="100%" h="100%" position="absolute" zIndex="10" opacity="0.8"></Flex>}
-            {view === 'table' ? <TableTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
-            {view === 'trello' ? <TrelloTickets tickets={tickets_or_cache} old_tickets={old_tickets} /> : null}
           </Flex>
-        </Flex>
-      )}
+        )
+      }
     </>
   )
 }
@@ -326,16 +336,21 @@ function TrelloTickets({ tickets, old_tickets }: { tickets: TicketsResponse[], o
 }
 
 function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: TicketsResponse[], status: string, label: string, old_tickets: TicketsResponse[] }) {
+  const bg = useColorModeValue('white', 'gray.700')
+  const bgYellow = useColorModeValue('yellow.100', 'yellow.600')
+  const bgOrange = useColorModeValue('orange.100', 'orange.600')
+  const bgGreen = useColorModeValue('green.100', 'green.600')
+  const bgRed = useColorModeValue('red.100', 'red.600')
   const column_tickets = tickets.filter(ticket => ticket.status === status)
   return (
-    <Flex flexDir="column" boxShadow="md" width="20%" flex="1" overflow="auto" background="white" rounded="md">
+    <Flex flexDir="column" boxShadow="md" width="20%" flex="1" overflow="auto" background={bg} rounded="md">
       <Flex px="4" py="2" background="blue.600" fontWeight="bold" alignItems="center">
         <Flex color="white">{label}</Flex>
         <Spacer />
         <Flex
           h="36px"
           w="36px"
-          background="white"
+          background={bg}
           fontFamily="monospace"
           rounded="full"
           alignItems="center"
@@ -349,15 +364,15 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
             ? null
             : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
 
-          let color = !warning ? 'gray.100' : 'red.300'
+          let color = !warning ? bg : bgRed
           if (warning != 'In Test' && ticket.status === 'In Test') {
-            color = 'yellow.300'
+            color = bgYellow
           }
           if (warning == 'In Test' && ticket.status === 'In Test') {
-            color = 'orange.300'
+            color = bgOrange
           }
           if (ticket.status === 'Done') {
-            color = 'green.300'
+            color = bgGreen
           }
           return (
             <Flex title={ticket.summary} key={ticket.key} p="2" borderLeft="7px solid" boxShadow="md" borderColor={color} gap="3" alignItems="center" fontFamily="monospace" fontWeight="bold">
@@ -378,11 +393,16 @@ function TrelloColumn({ tickets, status, label, old_tickets }: { tickets: Ticket
 }
 
 function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<string[], string[]>[], old_tickets: TicketsResponse[] }) {
+  const bg = useColorModeValue('white', 'gray.700')
+  const bgYellow = useColorModeValue('yellow.100', 'yellow.600')
+  const bgOrange = useColorModeValue('orange.100', 'orange.600')
+  const bgGreen = useColorModeValue('green.100', 'green.600')
+  const bgRed = useColorModeValue('red.100', 'red.600')
   const { sprintId } = Route.useParams()
   const { viewSummary = true } = Route.useSearch()
 
   return (
-    <Table size="sm" boxShadow="md" background="white" rounded="lg">
+    <Table size="sm" boxShadow="md" background={bg} rounded="lg">
       <Thead>
         <Tr background="blue.500">
           <Th color="white" p="2">Ticket</Th>
@@ -404,15 +424,15 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
             ? null
             : old_tickets.find(old_ticket => old_ticket.key === ticket.key)?.status
 
-          let color = !warning ? undefined : 'red.100'
+          let color = !warning ? undefined : bgRed
           if (warning != 'In Test' && ticket.status === 'In Test') {
-            color = 'yellow.100'
+            color = bgYellow
           }
           if (warning == 'In Test' && ticket.status === 'In Test') {
-            color = 'orange.100'
+            color = bgOrange
           }
           if (ticket.status === 'Done') {
-            color = 'green.100'
+            color = bgGreen
           }
 
           return (
@@ -475,6 +495,7 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
 }
 
 function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
+  const bg = useColorModeValue('white', 'gray.700')
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev } = Route.useSearch()
 
@@ -531,7 +552,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
 
 
   return (
-    <Table size="sm" boxShadow="md" width={{ base: '100%', md: '600px' }} rounded="lg" background="white">
+    <Table size="sm" boxShadow="md" width={{ base: '100%', md: '600px' }} rounded="lg" background={bg}>
       <Thead>
         <Tr background="green.500">
           <Th color="white">Soft</Th>

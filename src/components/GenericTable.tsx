@@ -7,6 +7,7 @@ import {
   Thead,
   Tr,
   Link as ChakraLink,
+  useColorModeValue,
 } from '@chakra-ui/react'
 
 export default function GenericTable<T>(props: {
@@ -14,6 +15,8 @@ export default function GenericTable<T>(props: {
   headers?: Array<string>
   render?: (row: T) => React.ReactNode
 }) {
+  const bgGreen = useColorModeValue('green.100', 'green.600')
+  const bgBlue = useColorModeValue('blue.500', 'blue.100')
   const headers: string[] = props.headers || Object.keys(props.rows[0] || {})
   return (
     <Table size="sm" rounded="md">
@@ -28,7 +31,7 @@ export default function GenericTable<T>(props: {
         {props.rows.map((row) => {
           return (
             /* @ts-expect-error to fix after */
-            <Tr bg={row.inv_status === 'DONE' ? 'green.100' : 'unset'}>
+            <Tr bg={row.inv_status === 'DONE' ? bgGreen : 'unset'}>
               {headers.map((field) => {
                 return field === 'key' ? (
                   <Td whiteSpace="nowrap">
@@ -40,7 +43,7 @@ export default function GenericTable<T>(props: {
                         row[field]
                       }
                     >
-                      <Text color="blue.500" fontWeight="bold">
+                      <Text color={bgBlue} fontWeight="bold">
                         {/* @ts-expect-error  to fix after*/}
                         {row[field]}
                       </Text>
