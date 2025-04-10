@@ -1,5 +1,5 @@
 import Flow from './FLow'
-import { Flex, useColorModeValue } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { TicketsResponse } from '@/services/pocketbase-types'
 import { useMemo } from 'react'
 
