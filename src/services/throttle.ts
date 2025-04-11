@@ -17,6 +17,6 @@ export function throttle(func, delay) {
       func(...args)
     }, delay)
 
-    cache[fnid] = id
+    cache[fnid] = id as unknown as number
   }
 }

@@ -399,7 +399,6 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
   const bgOrange = useColorModeValue('orange.100', 'orange.600')
   const bgGreen = useColorModeValue('green.100', 'green.600')
   const bgRed = useColorModeValue('red.100', 'red.600')
-  const { sprintId } = Route.useParams()
   const { viewSummary = true } = Route.useSearch()
 
   return (
