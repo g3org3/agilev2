@@ -279,6 +279,7 @@ function Daily() {
             </Button>
           </Link>
           <Spacer />
+          <EpicBtn />
           <Filter />
           <DevsBtns />
           <DateBtns />
@@ -456,18 +457,6 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
                   >
                     {ticket.epic_name}
                   </ChakraLink>
-                  {ticket.epic_name && <Link
-                    to="/$sprintId/daily"
-                    params={{ sprintId }}
-                    search={(params) => ({ ...params, depGraph: ticket.epic })}
-                  >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                    >
-                      dp
-                    </Button>
-                  </Link>}
                 </Td>
                 <Td display={{ base: 'none', md: 'table-cell' }}>
                   <Flex gap="2">
@@ -496,6 +485,8 @@ function TableTickets({ tickets, old_tickets }: { tickets: TicketsResponse<strin
 
 function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
   const bg = useColorModeValue('white', 'gray.700')
+  const bgDev = useColorModeValue('blue.100', 'blue.700')
+
   const { sprintId } = Route.useParams()
   const { selectedDate, selectedDev } = Route.useSearch()
 
@@ -565,7 +556,7 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
       </Thead>
       <Tbody>
         {data.map(row => (
-          <Tr key={row.dev} background={selectedDev === row.dev ? 'blue.100' : undefined}>
+          <Tr key={row.dev} background={selectedDev === row.dev ? bgDev : undefined}>
             <Td>{row.soft}</Td>
             <Td>{row.dev}</Td>
             <Td display={{ base: 'none', md: 'table-cell' }}>{row.to_val}</Td>
@@ -584,6 +575,46 @@ function DaySummary({ tickets }: { tickets: TicketsResponse[] }) {
         </Tr>
       </Tbody>
     </Table>
+  )
+}
+
+function EpicBtn() {
+  const { sprintId } = Route.useParams()
+  const { selectedDev, selectedDate } = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  const filter = `sprint = '${sprintId}' && date = '${selectedDate}'`
+
+  const { data: full_tickets = [] } = useQuery({
+    queryKey: [sprintId, Collections.Tickets, selectedDate, selectedDev],
+    queryFn: () => pb.collection(Collections.Tickets)
+      .getFullList<TicketsResponse<string[], string[]>>({
+        filter,
+        sort: 'status',
+      }),
+    enabled: !!selectedDate,
+  })
+
+  const epics = useMemo(() => {
+    const byName: Record<string, TicketsResponse> = {}
+    for (const ticket of full_tickets) {
+      if (!ticket.epic_name?.trim()) continue
+      byName[ticket.epic] = ticket
+    }
+
+    return Object.values(byName).sort((a, b) => a.epic_name.localeCompare(b.epic_name))
+  }, [full_tickets])
+
+  return (
+    <Select maxW="300px" onChange={e => navigate({ to: '/$sprintId/daily', search: (old) => ({ ...old, depGraph: e.target.value }) })}>
+      <option value="">Dep Graph</option>
+      <option value="">----</option>
+      {epics.map(epic => (
+        <option value={epic.epic}>{epic.epic_name}</option>
+      ))}
+      <option value="">----</option>
+      <option value="">reset</option>
+    </Select>
   )
 }
 

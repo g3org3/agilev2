@@ -6,6 +6,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { Collections, StaffingRecord } from '@/services/pocketbase-types'
 import { pb } from '@/services/pb'
 import { useMutation } from '@tanstack/react-query'
+import { DateTime } from 'luxon'
 
 export const Route = createFileRoute('/$sprintId/admin')({
   component: Admin,
@@ -80,11 +81,11 @@ function Admin() {
 
   const onCreateStaffing = () => {
     const staffing = days
-      .map((day) =>
+      .map((day, index, items) =>
         devs.map((dev) => ({
           sprint: sprintId,
           dev,
-          points: 5,
+          points: ["Frederic Mamath", "Manuel David Camargo Rivera EXT"].includes(dev) ? (index === 0 || index === items.length - 1) ? 1 : 2 : index === 0 ? 2 : 5,
           utc_date: `${day} 00:00:00.000Z`,
           date: day,
         }))
@@ -98,7 +99,7 @@ function Admin() {
   }, [startAt, endAt])
 
   return (
-    <Flex flexDir="column" bg={bg} boxShadow="md" p="5" w="800px" margin="0 auto" gap={4}>
+    <Flex flexDir="column" bg={bg} boxShadow="md" p="5" gap={4}>
       <h1>AdminStaff</h1>
       <form onSubmit={onDevSubmit}>
         <Flex gap={2}>
@@ -133,10 +134,10 @@ function Admin() {
         ))}
       </ul>
       <h2 className="text-2xl">Days</h2>
-      <Flex flexDir="column">
+      <Flex flexDir="column" fontFamily="mono">
         {days.map((day) => (
           <Flex gap={7}>
-            <div>{day}</div>
+            <div>{DateTime.fromSQL(`${day} 00:00:00.000Z`).toFormat("EEE LLL dd")}</div>
             <Flex gap={4}>
               {devs.map((dev) => (
                 <div>{dev}</div>

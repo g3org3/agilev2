@@ -12,6 +12,7 @@ import {
   Select,
   Button,
   useColorModeValue,
+  Text,
 } from '@chakra-ui/react'
 import { FormEventHandler, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -81,8 +82,14 @@ function InvestigationsPage() {
       if (!by[inv.name]) {
         by[inv.name] = []
       }
-      by[inv.name].push(inv)
-      by[inv.name].sort((a, b) => b.date.localeCompare(a.date))
+      if (
+        by[inv.name].find((i) => i.sprint === inv.sprint && i.key === inv.key)
+      ) {
+        // ignore
+      } else {
+        by[inv.name].push(inv)
+        by[inv.name].sort((a, b) => b.date.localeCompare(a.date))
+      }
     }
     return by
   }, [investigations])
@@ -177,7 +184,7 @@ function InvestigationsPage() {
               borderTop={isOpen ? 'unset' : '1px solid #ccc'}
             >
               <Flex bg={bg} fontWeight="bold" fontSize="x-large" px={2} py={1}>
-                {name}
+                <Text fontFamily="monospace">{groupByInvestigations[name].length} tickets {groupByInvestigations[name].reduce((sum, inv) => sum + inv.points, 0)} points {groupByInvestigations[name].reduce((sum, inv) => sum + inv.points, 0)/5} days -</Text>{name}
               </Flex>
               {isOpen && (
                 <Table bg={bg} rounded="md">

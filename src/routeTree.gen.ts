@@ -15,6 +15,7 @@ import { Route as RoadmapImport } from './routes/roadmap'
 import { Route as OverviewImport } from './routes/overview'
 import { Route as InvestigationsImport } from './routes/investigations'
 import { Route as IndexImport } from './routes/index'
+import { Route as SprintIdIndexImport } from './routes/$sprintId/index'
 import { Route as SprintIdStaffingImport } from './routes/$sprintId/staffing'
 import { Route as SprintIdDailyImport } from './routes/$sprintId/daily'
 import { Route as SprintIdAdminImport } from './routes/$sprintId/admin'
@@ -42,6 +43,12 @@ const InvestigationsRoute = InvestigationsImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SprintIdIndexRoute = SprintIdIndexImport.update({
+  id: '/$sprintId/',
+  path: '/$sprintId/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SprintIdStaffingImport
       parentRoute: typeof rootRoute
     }
+    '/$sprintId/': {
+      id: '/$sprintId/'
+      path: '/$sprintId'
+      fullPath: '/$sprintId'
+      preLoaderRoute: typeof SprintIdIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -129,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/$sprintId/admin': typeof SprintIdAdminRoute
   '/$sprintId/daily': typeof SprintIdDailyRoute
   '/$sprintId/staffing': typeof SprintIdStaffingRoute
+  '/$sprintId': typeof SprintIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -139,6 +154,7 @@ export interface FileRoutesByTo {
   '/$sprintId/admin': typeof SprintIdAdminRoute
   '/$sprintId/daily': typeof SprintIdDailyRoute
   '/$sprintId/staffing': typeof SprintIdStaffingRoute
+  '/$sprintId': typeof SprintIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -150,6 +166,7 @@ export interface FileRoutesById {
   '/$sprintId/admin': typeof SprintIdAdminRoute
   '/$sprintId/daily': typeof SprintIdDailyRoute
   '/$sprintId/staffing': typeof SprintIdStaffingRoute
+  '/$sprintId/': typeof SprintIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -162,6 +179,7 @@ export interface FileRouteTypes {
     | '/$sprintId/admin'
     | '/$sprintId/daily'
     | '/$sprintId/staffing'
+    | '/$sprintId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -171,6 +189,7 @@ export interface FileRouteTypes {
     | '/$sprintId/admin'
     | '/$sprintId/daily'
     | '/$sprintId/staffing'
+    | '/$sprintId'
   id:
     | '__root__'
     | '/'
@@ -180,6 +199,7 @@ export interface FileRouteTypes {
     | '/$sprintId/admin'
     | '/$sprintId/daily'
     | '/$sprintId/staffing'
+    | '/$sprintId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -191,6 +211,7 @@ export interface RootRouteChildren {
   SprintIdAdminRoute: typeof SprintIdAdminRoute
   SprintIdDailyRoute: typeof SprintIdDailyRoute
   SprintIdStaffingRoute: typeof SprintIdStaffingRoute
+  SprintIdIndexRoute: typeof SprintIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -201,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   SprintIdAdminRoute: SprintIdAdminRoute,
   SprintIdDailyRoute: SprintIdDailyRoute,
   SprintIdStaffingRoute: SprintIdStaffingRoute,
+  SprintIdIndexRoute: SprintIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -219,7 +241,8 @@ export const routeTree = rootRoute
         "/roadmap",
         "/$sprintId/admin",
         "/$sprintId/daily",
-        "/$sprintId/staffing"
+        "/$sprintId/staffing",
+        "/$sprintId/"
       ]
     },
     "/": {
@@ -242,6 +265,9 @@ export const routeTree = rootRoute
     },
     "/$sprintId/staffing": {
       "filePath": "$sprintId/staffing.tsx"
+    },
+    "/$sprintId/": {
+      "filePath": "$sprintId/index.tsx"
     }
   }
 }
