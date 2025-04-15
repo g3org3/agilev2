@@ -155,13 +155,14 @@ function Daily() {
     return index === 0 || index === -1 ? null : dates[index - 1].date
   }, [dates, selectedDate])
 
-  const filter = `sprint = '${sprintId}' && date = '${selectedDate}'`
+  const filter = `sprint='${sprintId}' && date='${selectedDate}'`
 
   const { data: full_tickets_hack = [], isFetching: isFetchingTickets } = useQuery({
-    queryKey: [sprintId, Collections.Tickets, selectedDate, selectedDev],
+    staleTime: 0,
+    queryKey: [sprintId, Collections.Tickets, selectedDate, `dev-${selectedDev}`],
     queryFn: () => pb.collection(Collections.Tickets)
       .getFullList<TicketsResponse<string[], string[]>>({
-        filter: selectedDev ? filter + ` && owner = '${selectedDev}'` : filter,
+        filter: selectedDev ? filter + ` && owner='${selectedDev}'` : filter,
         sort: 'status',
       }),
     enabled: !!selectedDate,
