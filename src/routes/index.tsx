@@ -6,6 +6,7 @@ import {
   Th,
   Tr,
   Td,
+  Text,
   Tbody,
   Heading,
   Badge,
@@ -24,6 +25,7 @@ import { pb } from '@/services/pb'
 import {
   Collections,
   SprintsLabelsViewResponse,
+  SprintsPointsTbdViewResponse,
   SprintsViewResponse,
   TicketsResponse,
 } from '@/services/pocketbase-types'
@@ -33,7 +35,7 @@ import { queryClient } from '@/services/queryClient'
 export const Route = createFileRoute('/')({
   component: Home,
   validateSearch: z.object({
-    project: z.enum(['compass', 'datafeed', 'all']).nullish(),
+    project: z.enum(['compass', 'datafeed', 'all', '']).nullish(),
   }),
 })
 
@@ -197,7 +199,8 @@ function Home() {
             navigate({
               to: '/',
               search: {
-                project: e.target.value as never,
+                project:
+                  e.target.value === '' ? undefined : (e.target.value as never),
               },
             })
           }
@@ -225,11 +228,12 @@ function Home() {
             {isFetchingSprint &&
               new Array(20).fill(0).map((_, index) => (
                 <Tr key={`i-${index}`}>
-                  <Td colSpan={5}>
+                  <Td colSpan={6}>
                     <Skeleton height="10px" width="100%" />
                   </Td>
                 </Tr>
               ))}
+            <FutureSprints />
             {enhance_sprints.map((sprint, index) => (
               <Tr
                 key={sprint.id}
@@ -295,6 +299,88 @@ function Home() {
   )
 }
 
+function FutureSprints() {
+  const { project } = Route.useSearch()
+  const { data: rawsprints = [] } = useQuery({
+    queryKey: ['index', Collections.SprintsView],
+    queryFn: () =>
+      pb
+        .collection(Collections.SprintsView)
+        .getFullList<SprintsViewResponse<number, number, number, number>>({
+          sort: '-sprint',
+        }),
+  })
+
+  const { data: tbdSprints = [] } = useQuery({
+    queryKey: [Collections.SprintsPointsTbdView, project],
+    queryFn() {
+      return pb
+        .collection(Collections.SprintsPointsTbdView)
+        .getFullList<SprintsPointsTbdViewResponse<string, number, string>>({
+          filter:
+            project === 'datafeed'
+              ? `sprint ~ 'datafeed'`
+              : `sprint !~ 'datafeed'`,
+          sort: '-sprint',
+        })
+    },
+  })
+
+  const futureSprints = useMemo(() => {
+    const sprintIds = rawsprints.map((sprint) => sprint.sprint)
+    sprintIds.push('Sprint 112')
+    return tbdSprints.filter((sprint) => !sprintIds.includes(sprint.sprint))
+  }, [rawsprints, tbdSprints])
+
+  const nextSprint = useMemo(() => {
+    const sprint = futureSprints[0]
+    if (!sprint) return null
+    const prefix = project === 'datafeed' ? 'Datafeed - ' : ''
+    const [name, id] = sprint.sprint.replace(prefix, '').split(' ')
+    const nextId = Number(id) + 1
+
+    return `${prefix}${name} ${nextId}`
+  }, [futureSprints, project])
+
+  return (
+    <>
+      {nextSprint && pb.authStore.model?.isAdmin ? (
+        <Tr>
+          <Td colSpan={6}>
+            <Flex justifyContent="center">
+              <Link to="/$sprintId/admin" params={{ sprintId: nextSprint }}>
+                <Button size="sm">Create new sprint {nextSprint}</Button>
+              </Link>
+            </Flex>
+          </Td>
+        </Tr>
+      ) : null}
+      {futureSprints.map((sprint) => (
+        <Tr key={sprint.id}>
+          <Td>
+            <Link to="/$sprintId/staffing" params={{ sprintId: sprint.id }}>
+              <Button
+                leftIcon={<>👀</>}
+                variant="ghost"
+                color="gray.500"
+                size={{ base: 'xs', md: 'sm' }}
+              >
+                staff
+              </Button>
+            </Link>
+          </Td>
+          <Td>
+            <Text color="gray.500">{sprint.sprint}</Text>
+          </Td>
+          <Td colSpan={4}>
+            <Text color="gray.500">{sprint.points}</Text>
+          </Td>
+        </Tr>
+      ))}
+    </>
+  )
+}
+
 type SprintDatum = { sprint: string; percentage: number }
 function SprintGraph({ sprints }: { sprints: SprintDatum[] }) {
   if (sprints.length < 1) return null
@@ -320,7 +406,7 @@ function SprintGraph({ sprints }: { sprints: SprintDatum[] }) {
   ]
 
   const primaryAxis: AxisOptions<SprintDatum> = {
-    getValue: (datum) => datum.sprint,
+    getValue: (datum) => datum.sprint.replace('Datafeed - ', ''),
   }
 
   const secondaryAxes: AxisOptions<SprintDatum>[] = [
@@ -363,7 +449,7 @@ function ProblemGraph({ problems }: { problems: MyDatum[] }) {
   ]
 
   const primaryAxis: AxisOptions<MyDatum> = {
-    getValue: (datum) => datum.sprint,
+    getValue: (datum) => datum.sprint.replace('Datafeed - ', ''),
   }
 
   const secondaryAxes: AxisOptions<MyDatum>[] = [

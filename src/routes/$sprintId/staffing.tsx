@@ -2,7 +2,7 @@ import { ButtonLink } from '@/components/ButtonLink'
 import { pb } from '@/services/pb'
 import { Collections, StaffingResponse } from '@/services/pocketbase-types'
 import { queryClient } from '@/services/queryClient'
-import { Button, Code, Container, Flex, Spacer, Table, Tbody, Td, Text, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
+import { Button, Code, Container, Flex, Table, Tbody, Td, Text, Th, Thead, Tr, useClipboard, useColorModeValue } from '@chakra-ui/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -37,7 +37,11 @@ export function Staffing() {
     return byDev
   }, [data])
 
-  const devs = useMemo(() => Object.keys(staffByDev).sort(), [staffByDev])
+  const devs = useMemo(() => {
+    return Object.keys(staffByDev).sort()
+  }, [staffByDev])
+  const { onCopy, hasCopied } = useClipboard(devs.join(','))
+
   const dates = useMemo(() => {
     if (devs.length === 0) return []
 
@@ -57,9 +61,8 @@ export function Staffing() {
         <ButtonLink>
           <Text fontSize="xx-large">◀️ </Text>
         </ButtonLink>
-        <Text fontSize="xx-large">Staffing</Text>
-        <Spacer />
-        <Text fontSize="xx-large">{points} Points</Text>
+        <Text fontSize="xx-large">Staffing - {sprintId}</Text>
+        <Text fontSize="xx-large"> - {points} Points</Text>
       </Flex>
       <Table boxShadow="md" rounded="md" bg={bg}>
         <Thead>
@@ -85,7 +88,7 @@ export function Staffing() {
               <Td textAlign="right">
                 {Math.floor(staffByDev[dev].reduce((sum, day) => sum + day.points, 0) * 10 / 4.34) / 10}
               </Td>
-              <Td>{dev}</Td>
+              <Td fontWeight="bold">{dev}</Td>
               {staffByDev[dev].map(day => (
                 <Td textAlign="right" key={dev + day.date}>
                   {pb.authStore.model?.isAdmin ?
@@ -97,7 +100,10 @@ export function Staffing() {
           ))}
         </Tbody>
       </Table>
-      <Code>{devs.join(',')}</Code>
+      <Flex alignItems="center" gap={3} p={2}>
+        <Button onClick={onCopy} rounded="0" size="xs">copy</Button>
+        <Code transition="all 300ms" bg={hasCopied ? "green.100": undefined} flex="1">{devs.join(',')}</Code>
+      </Flex>
     </Container>
   )
 }
@@ -126,7 +132,7 @@ function BulkButton(props: { days: StaffingResponse[] }) {
 }
 
 function InputDay(props: { points: number, id: string }) {
-  const bg = useColorModeValue('whitesmoke', 'gray.600')
+  const bg = useColorModeValue(props.points ? 'whitesmoke' : 'red.200', props.points ? 'gray.600' : 'red.700')
   const { sprintId } = Route.useParams()
 
   const { mutate } = useMutation({

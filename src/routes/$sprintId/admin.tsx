@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Avatar, Button, Flex, Input, Text, useColorModeValue } from '@chakra-ui/react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import z from 'zod'
 import { FormEvent, useMemo, useState } from 'react'
 import { Collections, StaffingRecord } from '@/services/pocketbase-types'
@@ -65,9 +65,13 @@ function Admin() {
   const [devs, setDevs] = useState<string[]>([])
   const [startAt, setStartAt] = useState<string>('')
   const [endAt, setEndAt] = useState<string>('')
+  const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (staffing: StaffingRecord[]) => upsertStaffing({ sprint: sprintId, staffing }),
+    onSuccess() {
+      navigate({ to: '/$sprintId/staffing', params: { sprintId } })
+    }
   })
 
   const onDevSubmit = onSubmit(z.object({ devs: z.string() }), (data) => {
@@ -100,7 +104,7 @@ function Admin() {
 
   return (
     <Flex flexDir="column" bg={bg} boxShadow="md" p="5" gap={4}>
-      <h1>AdminStaff</h1>
+      <Text fontSize="3xl">Creating new Sprint - {sprintId}</Text>
       <form onSubmit={onDevSubmit}>
         <Flex gap={2}>
           <Input
@@ -127,27 +131,38 @@ function Admin() {
           devs from {startAt} to {endAt}
         </h2>
       )}
-      <h3 className="text-2xl">Devs</h3>
-      <ul>
-        {devs.map((dev) => (
-          <li>{dev}</li>
-        ))}
-      </ul>
-      <h2 className="text-2xl">Days</h2>
-      <Flex flexDir="column" fontFamily="mono">
-        {days.map((day) => (
-          <Flex gap={7}>
-            <div>{DateTime.fromSQL(`${day} 00:00:00.000Z`).toFormat("EEE LLL dd")}</div>
-            <Flex gap={4}>
-              {devs.map((dev) => (
-                <div>{dev}</div>
-              ))}
-            </Flex>
+      {devs.length > 0 && (
+        <>
+          <Text fontSize="2xl">Devs</Text>
+          <Flex flexDir="column" gap={2}>
+            {devs.map((dev) => (
+              <Flex key={dev} alignItems="center" gap={3}>
+                <Avatar name={dev} size="sm" />
+                {dev}
+              </Flex>
+            ))}
           </Flex>
-        ))}
-      </Flex>
+        </>
+      )}
+      {days.length > 0 && (
+        <>
+          <Text fontSize="2xl">Days</Text>
+          <Flex flexDir="column" fontFamily="mono">
+            {days.map((day) => (
+              <Flex key={'day-' + day} gap={7}>
+                <Flex>{DateTime.fromSQL(`${day} 00:00:00.000Z`).toFormat("EEE LLL dd")}</Flex>
+                <Flex gap={4}>
+                  {devs.map((dev) => (
+                    <Flex borderLeft="1px solid" borderColor="gray.400" pl={3} key={'d-' + dev}>{dev.split(' ')[0]}</Flex>
+                  ))}
+                </Flex>
+              </Flex>
+            ))}
+          </Flex>
+        </>
+      )}
       <Button
-        disabled={isPending || !devs || !startAt || !endAt}
+        isDisabled={isPending || devs.length === 0 || startAt === '' || endAt === ''}
         onClick={onCreateStaffing}
       >
         {isPending ? 'loading...' : 'create staffing'}
