@@ -120,8 +120,6 @@ function Home() {
   const skipped_sprints = [
     'Sprint 110',
     'Sprint 111',
-    'Sprint 150',
-    'Datafeed - Sprint 150',
     'Datafeed - Sprint 1',
     'Datafeed - Sprint 2',
     'Datafeed - Sprint 3',
@@ -152,6 +150,8 @@ function Home() {
     return { ...sprint, pseudo_done, percentage }
   })
 
+  const current_sprint = enhance_sprints[0]?.sprint
+
   useEffect(() => {
     const callback = (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
@@ -169,7 +169,7 @@ function Home() {
   }, [enhance_sprints, navigate])
 
   const sprints_graph = enhance_sprints
-    .filter((sprint) => !skipped_sprints.includes(sprint.sprint))
+    .filter((sprint) => !skipped_sprints.includes(sprint.sprint) && sprint.sprint !== current_sprint)
     .map((sprint) => ({ sprint: sprint.sprint, percentage: sprint.percentage }))
     .reverse()
 
